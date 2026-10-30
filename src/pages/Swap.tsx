@@ -247,7 +247,7 @@ export function Swap() {
   } | null>(null)
 
   const { writeContractAsync } = useWriteContract()
-  const { recordSwap } = useRecordSwap()
+  const { recordSwap, isPending: isRecordPending, isConfirming: isRecordConf, isSuccess: isRecordSuccess } = useRecordSwap()
   const {
     isLoading: isApprovalConf,
     isSuccess: isApprovalSuccess,
@@ -260,8 +260,12 @@ export function Swap() {
   } = useWaitForTransactionReceipt({ hash: swapHash })
   const isBusy = step !== 'idle' || isApprovalConf || isSwapConf
 
-  // Derived — true only once wagmi reports the receipt as successful
+  // Phase 1: swap tx confirmed on-chain
   const swapConfirmed = isSwapSuccess && !!swapHash
+  // Phase 2: recordSwap in progress (pending wallet sig or waiting for confirmation)
+  const isRecording = swapConfirmed && (isRecordPending || isRecordConf)
+  // Phase 3: fully done — swap confirmed + history recorded
+  const fullyDone = swapConfirmed && isRecordSuccess
 
   // ── Compute route path ──────────────────────────────────────────────────────
   const path = useMemo(() => buildPath(fromTok, toTok), [fromTok, toTok])
@@ -692,35 +696,75 @@ export function Swap() {
         </div>
       </div>
 
-      {/* Pending banner — shown while tx is in mempool awaiting confirmation */}
+      {/* Phase 1: swap tx waiting for on-chain confirmation */}
       {swapHash && isSwapConf && !swapConfirmed && (
         <div style={{ marginTop: 14, padding: '14px 18px', background: '#0d1728', border: `1px solid ${Q.border2}`, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Loader2 size={18} style={{ color: Q.acc, flexShrink: 0, animation: 'spin 1s linear infinite' }} />
             <div>
               <p style={{ color: Q.ink2, fontSize: 14, fontWeight: 600, margin: '0 0 2px' }}>Waiting for confirmation…</p>
-              <p style={{ color: Q.subtle, fontSize: 12, margin: 0 }}>Your transaction is being processed on-chain</p>
+              <p style={{ color: Q.subtle, fontSize: 12, margin: 0 }}>Swap is being processed on-chain</p>
             </div>
           </div>
-          <a href={getExplorerTxUrl(swapHash)} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 5, color: Q.subtle, fontSize: 12, fontWeight: 600, textDecoration: 'none', padding: '7px 12px', background: '#0c1f33', border: `1px solid ${Q.border}`, borderRadius: 10, flexShrink: 0 }}>
+          <a href={getExplorerTxUrl(swapHash)} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 5, color: Q.subtle, fontSize: 12, fontWeight: 600, textDecoration: 'none', padding: '7px 12px', background: '#0c1f33', border: `1px solid ${Q.border}`, borderRadius: 10, flexShrink: 0 }}>
             Tx <ExternalLink size={11} />
           </a>
         </div>
       )}
 
-      {/* Success banner — shown only after on-chain confirmation */}
-      {swapConfirmed && swapHash && (
-        <div style={{ marginTop: 14, padding: '14px 18px', background: '#0a2118', border: '1px solid rgba(52,211,153,0.3)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      {/* Phase 2: swap confirmed, recordSwap in progress */}
+      {swapConfirmed && swapHash && isRecording && !fullyDone && (
+        <div style={{ marginTop: 14, padding: '14px 18px', background: '#0a2118', border: '1px solid rgba(52,211,153,0.2)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Loader2 size={18} style={{ color: Q.success, flexShrink: 0, animation: 'spin 1s linear infinite' }} />
+            <div>
+              <p style={{ color: Q.success, fontSize: 14, fontWeight: 700, margin: '0 0 2px' }}>Swap Confirmed!</p>
+              <p style={{ color: Q.subtle, fontSize: 12, margin: 0 }}>
+                {isRecordPending ? 'Confirm the record tx in your wallet…' : 'Saving history to blockchain…'}
+              </p>
+            </div>
+          </div>
+          <a href={getExplorerTxUrl(swapHash)} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 5, color: Q.acc, fontSize: 12, fontWeight: 600, textDecoration: 'none', padding: '7px 12px', background: '#0c1f33', border: `1px solid ${Q.border}`, borderRadius: 10, flexShrink: 0 }}>
+            Tx <ExternalLink size={11} />
+          </a>
+        </div>
+      )}
+
+      {/* Phase 2b: swap confirmed but recordSwap not started yet (brief gap) */}
+      {swapConfirmed && swapHash && !isRecording && !fullyDone && (
+        <div style={{ marginTop: 14, padding: '14px 18px', background: '#0a2118', border: '1px solid rgba(52,211,153,0.2)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Loader2 size={18} style={{ color: Q.success, flexShrink: 0, animation: 'spin 1s linear infinite' }} />
+            <div>
+              <p style={{ color: Q.success, fontSize: 14, fontWeight: 700, margin: '0 0 2px' }}>Swap Confirmed!</p>
+              <p style={{ color: Q.subtle, fontSize: 12, margin: 0 }}>Preparing to save history…</p>
+            </div>
+          </div>
+          <a href={getExplorerTxUrl(swapHash)} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 5, color: Q.acc, fontSize: 12, fontWeight: 600, textDecoration: 'none', padding: '7px 12px', background: '#0c1f33', border: `1px solid ${Q.border}`, borderRadius: 10, flexShrink: 0 }}>
+            Tx <ExternalLink size={11} />
+          </a>
+        </div>
+      )}
+
+      {/* Phase 3: fully done — swap + history both confirmed */}
+      {fullyDone && swapHash && (
+        <div style={{ marginTop: 14, padding: '14px 18px', background: '#0a2118', border: '1px solid rgba(52,211,153,0.35)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(52,211,153,0.12)', border: '1.5px solid rgba(52,211,153,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Check size={16} style={{ color: Q.success }} />
             </div>
             <div>
               <p style={{ color: Q.success, fontSize: 14, fontWeight: 700, margin: '0 0 2px' }}>Swap Confirmed!</p>
-              <p style={{ color: Q.subtle, fontSize: 12, margin: 0 }}>Transaction finalised on QMS Testnet</p>
+              <p style={{ color: Q.subtle, fontSize: 12, margin: 0 }}>
+                Tx: <span style={{ fontFamily: 'monospace', color: Q.ink2 }}>{swapHash.slice(0, 10)}…{swapHash.slice(-8)}</span>
+              </p>
             </div>
           </div>
-          <a href={getExplorerTxUrl(swapHash)} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 5, color: Q.acc, fontSize: 13, fontWeight: 600, textDecoration: 'none', padding: '8px 14px', background: '#0c1f33', border: `1px solid ${Q.border2}`, borderRadius: 10, flexShrink: 0 }}>
+          <a href={getExplorerTxUrl(swapHash)} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 5, color: Q.acc, fontSize: 13, fontWeight: 600, textDecoration: 'none', padding: '8px 14px', background: '#0c1f33', border: `1px solid ${Q.border2}`, borderRadius: 10, flexShrink: 0 }}>
             Explorer <ExternalLink size={12} />
           </a>
         </div>

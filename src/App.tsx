@@ -19,14 +19,18 @@ export default function App() {
   const [page, setPage]           = useState<Page>('overview')
   // Stage 1: overview-only  Stage 2: splash (connect wallet)  Stage 3: full app
   const [stage, setStage]         = useState<'overview' | 'splash' | 'app'>('overview')
+  // hasLanded: true after first wallet connect — prevents overview→dashboard redirect on subsequent visits
+  const [hasLanded, setHasLanded] = useState(false)
   const { isConnected }           = useAccount()
 
-  // Auto-advance from splash to app once wallet connects, land on dashboard
+  // Auto-advance from splash to app once wallet connects
   const effectiveStage = stage === 'splash' && isConnected ? 'app' : stage
-  // When just unlocked via wallet connect, show dashboard regardless of page state
-  const effectivePage: Page = effectiveStage === 'app' && page === 'overview' ? 'dashboard' : page
+  // On first unlock (hasLanded=false), redirect overview→dashboard so user lands on Home.
+  // Once user navigates anywhere (hasLanded=true), overview is accessible normally.
+  const effectivePage: Page = effectiveStage === 'app' && !hasLanded && page === 'overview' ? 'dashboard' : page
 
   function navigate(p: string) {
+    setHasLanded(true)   // any navigation means app is fully open; overview is now accessible
     setPage(p as Page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
