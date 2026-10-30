@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Qpay</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080e1a;
+      --surf: #0d1525;
+      --surf2: #111c30;
+      --border: #1e2d4a;
+      --acc: #3b9eff;
+      --acc2: #60b4ff;
+      --ink: #e8f0fe;
+      --ink2: #a8b8d0;
+      --muted: #6b7fa0;
+      --subtle: #3a4a65;
+      --success: #22c55e;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink2);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(8,14,26,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #1a3a6e, #2563eb);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 16px; color: #fff;
+    }
+    .nav-logo-text { color: var(--ink); font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
+    .nav-badge {
+      background: var(--acc); color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+      padding: 2px 8px; border-radius: 20px; text-transform: uppercase;
+    }
+    .nav-back {
+      color: var(--muted); font-size: 13px; text-decoration: none;
+      display: flex; align-items: center; gap: 6px;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--acc); }
+
+    .hero {
+      background: linear-gradient(135deg, #071220 0%, #0b1a30 50%, #060e1c 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 64px 24px 48px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25);
+      color: #86efac; font-size: 12px; font-weight: 600;
+      padding: 4px 14px; border-radius: 20px; margin-bottom: 20px;
+    }
+    .hero h1 {
+      color: var(--ink); font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800; letter-spacing: -0.02em;
+      margin-bottom: 12px; line-height: 1.2;
+    }
+    .hero p { color: var(--ink2); font-size: 15px; max-width: 560px; margin: 0 auto 24px; }
+    .hero-meta {
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      flex-wrap: wrap;
+    }
+    .hero-meta span { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .hero-meta strong { color: var(--ink2); }
+
+    /* ── Privacy highlight cards ── */
+    .privacy-highlights {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+      margin-bottom: 40px;
+    }
+    @media (max-width: 640px) { .privacy-highlights { grid-template-columns: 1fr; } }
+    .highlight-card {
+      background: var(--surf); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+      text-align: center;
+    }
+    .highlight-icon { font-size: 28px; margin-bottom: 10px; }
+    .highlight-title { color: var(--ink); font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+    .highlight-desc { color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    .toc {
+      background: var(--surf); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px 28px; margin-bottom: 40px;
+    }
+    .toc-title { color: var(--ink); font-weight: 700; font-size: 14px; margin-bottom: 14px; }
+    .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; }
+    .toc a {
+      color: var(--muted); font-size: 13px; text-decoration: none;
+      display: flex; align-items: center; gap: 6px;
+      padding: 3px 0; transition: color 0.2s;
+    }
+    .toc a:hover { color: var(--acc); }
+    .toc a::before { content: '§'; color: var(--subtle); font-size: 11px; }
+    @media (max-width: 520px) { .toc-grid { grid-template-columns: 1fr; } }
+
+    .section { margin-bottom: 48px; scroll-margin-top: 80px; }
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-num {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: rgba(34,197,94,0.12); color: #86efac;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .section h2 { color: var(--ink); font-size: 20px; font-weight: 700; }
+    .section p { color: var(--ink2); margin-bottom: 12px; }
+    .section p:last-child { margin-bottom: 0; }
+    .section ul { padding-left: 0; list-style: none; margin-bottom: 12px; }
+    .section ul li {
+      color: var(--ink2); font-size: 14px; padding: 5px 0 5px 20px;
+      position: relative; border-bottom: 1px solid var(--border);
+    }
+    .section ul li:last-child { border-bottom: none; }
+    .section ul li::before { content: '›'; color: var(--success); font-weight: 700; position: absolute; left: 0; top: 5px; }
+
+    .callout {
+      border-radius: 10px; padding: 14px 18px; margin: 16px 0;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .callout-success { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); }
+    .callout-info { background: rgba(59,158,255,0.07); border: 1px solid rgba(59,158,255,0.2); }
+    .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+    .callout-body { font-size: 13px; line-height: 1.6; }
+    .callout-success .callout-body { color: #bbf7d0; }
+    .callout-info .callout-body { color: #93c5fd; }
+    .callout strong { font-weight: 700; }
+
+    /* Data table */
+    .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .data-table th {
+      background: var(--surf2); color: var(--ink); font-weight: 700;
+      padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .data-table td {
+      color: var(--ink2); padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--surf2); }
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .tag-no { background: rgba(34,197,94,0.15); color: #86efac; }
+    .tag-yes { background: rgba(59,158,255,0.15); color: #93c5fd; }
+    .tag-chain { background: rgba(251,191,36,0.15); color: #fde68a; }
+
+    footer {
+      background: var(--surf); border-top: 1px solid var(--border);
+      padding: 32px 24px; text-align: center;
+    }
+    .footer-links { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
+    .footer-links a { color: var(--muted); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--acc); }
+    .footer-links a.active { color: var(--acc); }
+    footer p { color: var(--subtle); font-size: 12px; }
+
+    .scroll-top {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--success); border: none; cursor: pointer;
+      color: #fff; font-size: 18px; display: flex;
+      align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(34,197,94,0.4);
+      opacity: 0.85; transition: transform 0.2s, opacity 0.2s;
+    }
+    .scroll-top:hover { transform: translateY(-2px); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">Q</div>
+    <span class="nav-logo-text">Qpay</span>
+    <span class="nav-badge">Testnet</span>
+  </a>
+  <a href="javascript:window.close()" class="nav-back">← Back to App</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🔒 Privacy First</div>
+  <h1>Privacy Policy</h1>
+  <p>Your privacy matters. Qpay is built on a non-custodial, transparent architecture. We collect minimal data and never have access to your funds or private keys.</p>
+  <div class="hero-meta">
+    <span>📅 <strong>Effective:</strong> October 30, 2026</span>
+    <span>🔄 <strong>Last Updated:</strong> October 30, 2026</span>
+    <span>🌐 <strong>Network:</strong> QMS Testnet</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Privacy Highlights -->
+  <div class="privacy-highlights">
+    <div class="highlight-card">
+      <div class="highlight-icon">🔑</div>
+      <div class="highlight-title">No Key Access</div>
+      <div class="highlight-desc">We never access, store, or transmit your private keys or seed phrases</div>
+    </div>
+    <div class="highlight-card">
+      <div class="highlight-icon">💾</div>
+      <div class="highlight-title">Minimal Data</div>
+      <div class="highlight-desc">We collect only what is necessary to provide the service</div>
+    </div>
+    <div class="highlight-card">
+      <div class="highlight-icon">🚫</div>
+      <div class="highlight-title">No Data Selling</div>
+      <div class="highlight-desc">We do not sell, rent, or trade your personal information to third parties</div>
+    </div>
+  </div>
+
+  <!-- Table of Contents -->
+  <div class="toc">
+    <div class="toc-title">📋 Table of Contents</div>
+    <div class="toc-grid">
+      <a href="#overview">1. Overview</a>
+      <a href="#data-collected">2. Data We Collect</a>
+      <a href="#blockchain-data">3. Blockchain Data</a>
+      <a href="#how-we-use">4. How We Use Data</a>
+      <a href="#data-sharing">5. Data Sharing</a>
+      <a href="#cookies">6. Cookies &amp; Storage</a>
+      <a href="#security">7. Security</a>
+      <a href="#rights">8. Your Rights</a>
+      <a href="#third-party">9. Third-Party Services</a>
+      <a href="#children">10. Children's Privacy</a>
+      <a href="#changes">11. Changes to Policy</a>
+      <a href="#contact">12. Contact</a>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2>Overview</h2>
+    </div>
+    <p>Qpay ("we", "us", "our") is committed to protecting your privacy. This Privacy Policy explains how we handle information when you use the Qpay decentralized application ("Platform").</p>
+    <p>Because Qpay is a non-custodial blockchain application, <strong style="color: var(--ink);">we fundamentally do not have access to your funds, private keys, or wallet credentials</strong>. Transactions occur directly on the QMS blockchain and are publicly verifiable by anyone.</p>
+    <div class="callout callout-success">
+      <span class="callout-icon">✅</span>
+      <div class="callout-body"><strong>Privacy by design:</strong> Qpay's architecture minimizes data collection by design. Your wallet interacts directly with smart contracts on QMS Testnet. We serve only the frontend interface — we are not a financial intermediary and do not process payments on your behalf.</div>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section" id="data-collected">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2>Data We Collect</h2>
+    </div>
+    <p>The following table summarizes what data is and is not collected when you use Qpay:</p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Data Type</th>
+          <th>Collected?</th>
+          <th>Where Stored</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Private keys / seed phrases</td>
+          <td><span class="tag tag-no">Never</span></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>Wallet addresses</td>
+          <td><span class="tag tag-chain">On-chain only</span></td>
+          <td>QMS Blockchain (public)</td>
+          <td>Payroll &amp; transaction records</td>
+        </tr>
+        <tr>
+          <td>Transaction data</td>
+          <td><span class="tag tag-chain">On-chain only</span></td>
+          <td>QMS Blockchain (public)</td>
+          <td>Payroll &amp; swap history</td>
+        </tr>
+        <tr>
+          <td>Employee names</td>
+          <td><span class="tag tag-chain">On-chain only</span></td>
+          <td>QMS Blockchain (public)</td>
+          <td>Payroll identification</td>
+        </tr>
+        <tr>
+          <td>Browser analytics</td>
+          <td><span class="tag tag-no">Not collected</span></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>IP addresses</td>
+          <td><span class="tag tag-no">Not collected</span></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>Cookies</td>
+          <td><span class="tag tag-no">Not used</span></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>Swap history</td>
+          <td><span class="tag tag-chain">On-chain only</span></td>
+          <td>QpaySwap contract (public)</td>
+          <td>Transaction history display</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>We do not use analytics services, advertising trackers, or behavioral monitoring tools on the Qpay platform.</p>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section" id="blockchain-data">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2>Blockchain Data &amp; Public Transparency</h2>
+    </div>
+    <p>All transactions on QMS Testnet are publicly recorded on the blockchain and are visible to anyone with access to the network. This includes:</p>
+    <ul>
+      <li>Your wallet address (sender and recipient)</li>
+      <li>Transaction amounts and token types</li>
+      <li>Smart contract interactions (payroll creation, payments, swaps)</li>
+      <li>Employee wallet addresses and payroll amounts entered into the QpayPayroll contract</li>
+      <li>Swap records stored in the QpaySwap contract</li>
+      <li>Timestamps and block numbers of all transactions</li>
+    </ul>
+    <div class="callout callout-info">
+      <span class="callout-icon">🔍</span>
+      <div class="callout-body"><strong>Blockchain transparency:</strong> By design, all data stored in smart contracts is publicly readable by anyone. Do not store sensitive personal information (names, identification numbers, etc.) in any field that gets recorded on-chain. Employee names entered in Qpay are stored permanently on the QMS blockchain and are publicly visible.</div>
+    </div>
+    <p>This is an inherent property of public blockchains and is not within Qpay's control. Once data is written to the blockchain, it cannot be deleted or modified.</p>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section" id="how-we-use">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2>How We Use Data</h2>
+    </div>
+    <p>Since we do not collect personal data beyond what is publicly available on the blockchain, our data usage is extremely limited:</p>
+    <ul>
+      <li>Displaying your wallet's on-chain data within the Qpay interface (payrolls, balances, swap history)</li>
+      <li>Reading public blockchain state to power the application's features</li>
+      <li>No marketing, profiling, advertising, or data monetization of any kind</li>
+    </ul>
+    <p>We do not build user profiles, sell data to third parties, or use your information for any purpose beyond providing the core service.</p>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="section" id="data-sharing">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h2>Data Sharing</h2>
+    </div>
+    <p>We do not sell, trade, rent, or otherwise share your personal data with third parties, except in the following limited circumstances:</p>
+    <ul>
+      <li><strong>Public blockchain data</strong> — transaction data is inherently public on QMS Testnet and accessible to anyone</li>
+      <li><strong>Legal compliance</strong> — we may disclose information if required by law, regulation, or valid legal process</li>
+      <li><strong>Protection of rights</strong> — we may share information to protect the rights, property, or safety of Qpay, its users, or the public</li>
+    </ul>
+    <p>The QWAP DEX protocol and QMS blockchain infrastructure are third-party services. When you interact with them through Qpay, their own terms and privacy practices apply.</p>
+  </div>
+
+  <!-- Section 6 -->
+  <div class="section" id="cookies">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <h2>Cookies &amp; Local Storage</h2>
+    </div>
+    <p>Qpay does not use cookies for tracking or advertising purposes.</p>
+    <p>Your web browser may use local storage or session storage for:</p>
+    <ul>
+      <li>Wallet connection state (managed by ConnectKit / wagmi — these are cleared when you disconnect)</li>
+      <li>User interface preferences such as selected network or last-used settings</li>
+    </ul>
+    <div class="callout callout-success">
+      <span class="callout-icon">✅</span>
+      <div class="callout-body"><strong>No transaction data in local storage:</strong> All payroll records, payment history, and swap history are stored exclusively on the QMS blockchain — not in your browser's local storage. Your data is always available from any device.</div>
+    </div>
+    <p>You can clear browser local storage at any time through your browser settings without affecting your on-chain data.</p>
+  </div>
+
+  <!-- Section 7 -->
+  <div class="section" id="security">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <h2>Security</h2>
+    </div>
+    <p>We take reasonable measures to protect the Qpay frontend and smart contracts:</p>
+    <ul>
+      <li>Smart contracts have been internally reviewed for common vulnerabilities</li>
+      <li>The frontend application does not store or transmit private keys</li>
+      <li>All wallet interactions are handled by the user's own wallet software (e.g., MetaMask)</li>
+      <li>HTTPS is used for all frontend communications</li>
+      <li>Smart contract code is publicly verifiable on the QMS block explorer</li>
+    </ul>
+    <p>However, no system is 100% secure. You are responsible for maintaining the security of your own wallet, private keys, and connected devices. We strongly recommend using a hardware wallet for significant real-world value transactions (on mainnet).</p>
+  </div>
+
+  <!-- Section 8 -->
+  <div class="section" id="rights">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <h2>Your Rights</h2>
+    </div>
+    <p>Depending on your jurisdiction, you may have certain rights regarding your personal data:</p>
+    <ul>
+      <li><strong>Right to access</strong> — you can view all data associated with your wallet directly on the QMS blockchain explorer</li>
+      <li><strong>Right to deletion</strong> — blockchain data is immutable and cannot be deleted; this is a fundamental property of decentralized networks</li>
+      <li><strong>Right to portability</strong> — your data is publicly accessible on the blockchain and can be exported via any blockchain data tool</li>
+      <li><strong>Right to object</strong> — you may stop using Qpay at any time; disconnecting your wallet ceases all interaction with our platform</li>
+    </ul>
+    <p>Since we collect minimal off-chain data, most traditional data rights (access, correction, deletion of server-side records) do not apply in the traditional sense — your primary data exists on the public blockchain.</p>
+  </div>
+
+  <!-- Section 9 -->
+  <div class="section" id="third-party">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <h2>Third-Party Services</h2>
+    </div>
+    <p>Qpay interacts with the following third-party services and protocols:</p>
+    <ul>
+      <li><strong>QMS Blockchain Network</strong> — the underlying blockchain infrastructure. All transactions are broadcast to and recorded on this network.</li>
+      <li><strong>QWAP DEX</strong> — the decentralized exchange protocol used for token swaps. Swap transactions are executed via QWAP's smart contracts.</li>
+      <li><strong>MetaMask / Web3 Wallets</strong> — wallet software used to sign transactions. These have their own privacy policies.</li>
+      <li><strong>QMS Scan</strong> — the block explorer for QMS Testnet, used for verifying transactions.</li>
+    </ul>
+    <p>We are not responsible for the privacy practices of these third-party services. We encourage you to review their respective privacy policies.</p>
+  </div>
+
+  <!-- Section 10 -->
+  <div class="section" id="children">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <h2>Children's Privacy</h2>
+    </div>
+    <p>Qpay is not intended for use by individuals under the age of 18 (or the applicable age of majority in their jurisdiction). We do not knowingly collect personal information from children.</p>
+    <p>If you believe a child has provided personal information through our Platform, please contact us and we will take appropriate steps to address the situation to the extent possible within the constraints of a decentralized application.</p>
+  </div>
+
+  <!-- Section 11 -->
+  <div class="section" id="changes">
+    <div class="section-header">
+      <div class="section-num">11</div>
+      <h2>Changes to This Policy</h2>
+    </div>
+    <p>We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. When we make significant changes, we will update the "Last Updated" date at the top of this page.</p>
+    <p>We encourage you to review this policy periodically. Your continued use of Qpay after any changes indicates your acceptance of the updated policy.</p>
+  </div>
+
+  <!-- Section 12 -->
+  <div class="section" id="contact">
+    <div class="section-header">
+      <div class="section-num">12</div>
+      <h2>Contact</h2>
+    </div>
+    <p>If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us through:</p>
+    <ul>
+      <li>Platform: Qpay on QMS Testnet</li>
+      <li>Block Explorer: <a href="https://testnet.qmsscan.io" target="_blank" rel="noopener noreferrer" style="color: var(--acc);">testnet.qmsscan.io</a></li>
+      <li>DEX: <a href="https://testnet.qwap.xyz" target="_blank" rel="noopener noreferrer" style="color: var(--acc);">testnet.qwap.xyz</a></li>
+    </ul>
+    <p>We are committed to addressing privacy concerns promptly and transparently.</p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/terms.html">Terms of Service</a>
+    <a href="/privacy.html" class="active">Privacy Policy</a>
+    <a href="/docs.html">Documentation</a>
+  </div>
+  <p>© 2026 Qpay. All rights reserved. Non-custodial stablecoin payments on QMS Network.</p>
+</footer>
+
+<button class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+</body>
+</html>

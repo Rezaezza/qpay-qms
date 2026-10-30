@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — Qpay</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080e1a;
+      --surf: #0d1525;
+      --surf2: #111c30;
+      --border: #1e2d4a;
+      --acc: #3b9eff;
+      --acc2: #60b4ff;
+      --ink: #e8f0fe;
+      --ink2: #a8b8d0;
+      --muted: #6b7fa0;
+      --subtle: #3a4a65;
+      --warn: #fbbf24;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink2);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(8,14,26,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #1a3a6e, #2563eb);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 16px; color: #fff;
+    }
+    .nav-logo-text { color: var(--ink); font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
+    .nav-badge {
+      background: var(--acc); color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+      padding: 2px 8px; border-radius: 20px; text-transform: uppercase;
+    }
+    .nav-back {
+      color: var(--muted); font-size: 13px; text-decoration: none;
+      display: flex; align-items: center; gap: 6px;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--acc); }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0a1628 0%, #0d1e38 50%, #091220 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 64px 24px 48px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--acc)+'18'; border: 1px solid var(--acc)+'33';
+      color: var(--acc2); font-size: 12px; font-weight: 600;
+      padding: 4px 14px; border-radius: 20px; margin-bottom: 20px;
+      background: rgba(59,158,255,0.1); border: 1px solid rgba(59,158,255,0.25);
+    }
+    .hero h1 {
+      color: var(--ink); font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800; letter-spacing: -0.02em;
+      margin-bottom: 12px; line-height: 1.2;
+    }
+    .hero p { color: var(--ink2); font-size: 15px; max-width: 560px; margin: 0 auto 24px; }
+    .hero-meta {
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      flex-wrap: wrap;
+    }
+    .hero-meta span { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .hero-meta strong { color: var(--ink2); }
+
+    /* ── Layout ── */
+    .container { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── TOC ── */
+    .toc {
+      background: var(--surf);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 40px;
+    }
+    .toc-title { color: var(--ink); font-weight: 700; font-size: 14px; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px; }
+    .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; }
+    .toc a {
+      color: var(--muted); font-size: 13px; text-decoration: none;
+      display: flex; align-items: center; gap: 6px;
+      padding: 3px 0; transition: color 0.2s;
+    }
+    .toc a:hover { color: var(--acc); }
+    .toc a::before { content: '§'; color: var(--subtle); font-size: 11px; }
+    @media (max-width: 520px) { .toc-grid { grid-template-columns: 1fr; } }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 48px; scroll-margin-top: 80px; }
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-num {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: var(--acc)+'18'; color: var(--acc);
+      background: rgba(59,158,255,0.12); color: var(--acc2);
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .section h2 { color: var(--ink); font-size: 20px; font-weight: 700; }
+    .section p { color: var(--ink2); margin-bottom: 12px; }
+    .section p:last-child { margin-bottom: 0; }
+    .section ul { padding-left: 0; list-style: none; margin-bottom: 12px; }
+    .section ul li {
+      color: var(--ink2); font-size: 14px; padding: 5px 0 5px 20px;
+      position: relative; border-bottom: 1px solid var(--border);
+    }
+    .section ul li:last-child { border-bottom: none; }
+    .section ul li::before {
+      content: '›'; color: var(--acc); font-weight: 700;
+      position: absolute; left: 0; top: 5px;
+    }
+
+    /* ── Callout boxes ── */
+    .callout {
+      border-radius: 10px; padding: 14px 18px; margin: 16px 0;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .callout-warn { background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.2); }
+    .callout-info { background: rgba(59,158,255,0.07); border: 1px solid rgba(59,158,255,0.2); }
+    .callout-danger { background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2); }
+    .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+    .callout-body { font-size: 13px; line-height: 1.6; }
+    .callout-warn .callout-body { color: #fde68a; }
+    .callout-info .callout-body { color: #93c5fd; }
+    .callout-danger .callout-body { color: #fca5a5; }
+    .callout strong { font-weight: 700; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--surf);
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .footer-links { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
+    .footer-links a { color: var(--muted); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--acc); }
+    .footer-links a.active { color: var(--acc); }
+    footer p { color: var(--subtle); font-size: 12px; }
+
+    /* ── Scroll to top ── */
+    .scroll-top {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--acc); border: none; cursor: pointer;
+      color: #fff; font-size: 18px; display: flex;
+      align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(59,158,255,0.4);
+      transition: transform 0.2s, opacity 0.2s;
+      opacity: 0.85;
+    }
+    .scroll-top:hover { transform: translateY(-2px); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">Q</div>
+    <span class="nav-logo-text">Qpay</span>
+    <span class="nav-badge">Testnet</span>
+  </a>
+  <a href="javascript:window.close()" class="nav-back">
+    ← Back to App
+  </a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">📄 Legal Document</div>
+  <h1>Terms of Service</h1>
+  <p>Please read these terms carefully before using Qpay. By accessing or using our platform, you agree to be bound by these terms.</p>
+  <div class="hero-meta">
+    <span>📅 <strong>Effective:</strong> October 30, 2026</span>
+    <span>🔄 <strong>Last Updated:</strong> October 30, 2026</span>
+    <span>🌐 <strong>Network:</strong> QMS Testnet</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Table of Contents -->
+  <div class="toc">
+    <div class="toc-title">📋 Table of Contents</div>
+    <div class="toc-grid">
+      <a href="#acceptance">1. Acceptance of Terms</a>
+      <a href="#description">2. Service Description</a>
+      <a href="#eligibility">3. Eligibility</a>
+      <a href="#wallet">4. Wallet &amp; Keys</a>
+      <a href="#risks">5. Risks &amp; Disclaimers</a>
+      <a href="#prohibited">6. Prohibited Activities</a>
+      <a href="#intellectual">7. Intellectual Property</a>
+      <a href="#liability">8. Limitation of Liability</a>
+      <a href="#indemnification">9. Indemnification</a>
+      <a href="#changes">10. Changes to Terms</a>
+      <a href="#governing">11. Governing Law</a>
+      <a href="#contact">12. Contact</a>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>Testnet Notice:</strong> Qpay currently operates on QMS Testnet. All tokens and transactions on this platform have no real-world monetary value. Do not interact with this platform using mainnet assets or real funds.</div>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section" id="acceptance">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2>Acceptance of Terms</h2>
+    </div>
+    <p>By accessing, connecting a wallet to, or using the Qpay decentralized application ("Platform", "App", "Service"), you ("User", "you") acknowledge that you have read, understood, and agree to be bound by these Terms of Service ("Terms") and all applicable laws and regulations.</p>
+    <p>If you do not agree with any part of these Terms, you must immediately discontinue use of the Platform. These Terms constitute a legally binding agreement between you and Qpay ("we", "us", "our").</p>
+    <p>Your continued use of the Platform after any changes to these Terms constitutes your acceptance of those changes.</p>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section" id="description">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2>Service Description</h2>
+    </div>
+    <p>Qpay is a non-custodial, decentralized payroll and payment platform built on the QMS blockchain network. The Platform provides the following services:</p>
+    <ul>
+      <li>On-chain payroll management — create, manage, and execute payroll entries recorded on QMS Testnet</li>
+      <li>Stablecoin payments — send and receive USDT and USDC tokens directly from your connected wallet</li>
+      <li>Token swaps — exchange tokens via the QWAP decentralized exchange (Uniswap V2-compatible)</li>
+      <li>Transaction history — view on-chain records of all payroll payments and token swaps</li>
+      <li>Batch payments — pay multiple employees in a single blockchain transaction</li>
+    </ul>
+    <p>Qpay is a frontend interface that interacts with smart contracts deployed on QMS Testnet. We do not hold, custody, or control any user funds or private keys at any time.</p>
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <div class="callout-body"><strong>Non-custodial:</strong> All transactions are executed directly from your connected wallet. Qpay never has access to your private keys or funds. You maintain full control and responsibility over your assets.</div>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section" id="eligibility">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2>Eligibility</h2>
+    </div>
+    <p>To use Qpay, you must:</p>
+    <ul>
+      <li>Be at least 18 years of age or the age of legal majority in your jurisdiction</li>
+      <li>Have the legal capacity to enter into binding agreements</li>
+      <li>Not be a resident of, or subject to the laws of, any jurisdiction that prohibits your use of blockchain-based financial services</li>
+      <li>Possess a compatible Ethereum-compatible wallet (e.g., MetaMask) connected to QMS Testnet</li>
+      <li>Comply with all applicable local, national, and international laws and regulations</li>
+    </ul>
+    <p>By using the Platform, you represent and warrant that you meet all eligibility requirements stated above.</p>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section" id="wallet">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2>Wallet &amp; Private Keys</h2>
+    </div>
+    <p>To access and use Qpay, you must connect a compatible Web3 wallet. You are solely responsible for:</p>
+    <ul>
+      <li>Maintaining the security and confidentiality of your wallet's private keys and seed phrases</li>
+      <li>All transactions initiated through your connected wallet address</li>
+      <li>Ensuring you are connected to the correct network (QMS Testnet, Chain ID 19480)</li>
+      <li>Verifying transaction details before signing — all signed transactions are final and irreversible</li>
+      <li>Any gas fees or token approvals required to interact with smart contracts</li>
+    </ul>
+    <div class="callout callout-danger">
+      <span class="callout-icon">🔒</span>
+      <div class="callout-body"><strong>Never share your private key or seed phrase with anyone</strong>, including Qpay team members. We will never ask for this information. Loss of your private key means permanent loss of access to your wallet and all associated assets.</div>
+    </div>
+    <p>Qpay has no ability to recover lost wallets, reverse transactions, or restore access to accounts. All blockchain transactions are permanent and immutable.</p>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="section" id="risks">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h2>Risks &amp; Disclaimers</h2>
+    </div>
+    <p>By using Qpay, you acknowledge and accept the following risks:</p>
+    <ul>
+      <li><strong>Smart contract risk</strong> — smart contracts may contain bugs or vulnerabilities that could result in loss of funds</li>
+      <li><strong>Network risk</strong> — QMS Testnet may experience downtime, congestion, or discontinuation without notice</li>
+      <li><strong>Token risk</strong> — token values (on mainnet) can be highly volatile; all testnet tokens have no monetary value</li>
+      <li><strong>Regulatory risk</strong> — the regulatory status of blockchain applications may change in your jurisdiction</li>
+      <li><strong>User error</strong> — incorrectly entering wallet addresses or transaction amounts may result in permanent loss of funds</li>
+      <li><strong>Third-party risk</strong> — we have no control over QWAP DEX, token contracts, or the underlying QMS blockchain</li>
+    </ul>
+    <p>THE PLATFORM IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. WE DO NOT WARRANT THAT THE PLATFORM WILL BE UNINTERRUPTED, ERROR-FREE, OR FREE OF HARMFUL COMPONENTS.</p>
+  </div>
+
+  <!-- Section 6 -->
+  <div class="section" id="prohibited">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <h2>Prohibited Activities</h2>
+    </div>
+    <p>You agree not to engage in any of the following prohibited activities:</p>
+    <ul>
+      <li>Using the Platform for money laundering, terrorist financing, or any other illegal financial activities</li>
+      <li>Attempting to exploit, hack, or disrupt the smart contracts or frontend interface</li>
+      <li>Using automated bots or scripts to interact with the Platform in ways that harm other users</li>
+      <li>Impersonating any person or entity or misrepresenting your affiliation</li>
+      <li>Interfering with the proper functioning of the blockchain network</li>
+      <li>Attempting to bypass or circumvent any security measures</li>
+      <li>Using the Platform in any jurisdiction where such use is prohibited by law</li>
+    </ul>
+  </div>
+
+  <!-- Section 7 -->
+  <div class="section" id="intellectual">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <h2>Intellectual Property</h2>
+    </div>
+    <p>The Qpay brand, logo, user interface design, and documentation are the intellectual property of Qpay and are protected by applicable intellectual property laws.</p>
+    <p>The smart contracts deployed on QMS Testnet are open and verifiable on the blockchain explorer. The frontend source code, where open-sourced, is provided under its respective license terms.</p>
+    <p>You may not reproduce, distribute, modify, create derivative works from, publicly display, or commercially exploit any part of Qpay's proprietary materials without prior written consent.</p>
+  </div>
+
+  <!-- Section 8 -->
+  <div class="section" id="liability">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <h2>Limitation of Liability</h2>
+    </div>
+    <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, QPAY AND ITS DEVELOPERS SHALL NOT BE LIABLE FOR ANY:</p>
+    <ul>
+      <li>Loss of funds, tokens, or digital assets resulting from use of the Platform</li>
+      <li>Smart contract bugs, vulnerabilities, or exploits</li>
+      <li>Network outages, congestion, or failures of the QMS blockchain</li>
+      <li>Unauthorized access to your wallet or private keys</li>
+      <li>Indirect, incidental, special, exemplary, or consequential damages</li>
+      <li>Loss of profits, data, goodwill, or other intangible losses</li>
+    </ul>
+    <p>This limitation applies regardless of the theory of liability and even if we have been advised of the possibility of such damages. Since Qpay currently operates on testnet with no real value tokens, all tokens and balances are test tokens only.</p>
+  </div>
+
+  <!-- Section 9 -->
+  <div class="section" id="indemnification">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <h2>Indemnification</h2>
+    </div>
+    <p>You agree to indemnify, defend, and hold harmless Qpay, its developers, contributors, and affiliates from and against any and all claims, liabilities, damages, losses, costs, and expenses (including reasonable legal fees) arising out of or in any way related to:</p>
+    <ul>
+      <li>Your access to or use of the Platform</li>
+      <li>Your violation of these Terms</li>
+      <li>Your violation of any applicable law or regulation</li>
+      <li>Any content you submit, post, or transmit through the Platform</li>
+      <li>Any dispute between you and any third party</li>
+    </ul>
+  </div>
+
+  <!-- Section 10 -->
+  <div class="section" id="changes">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <h2>Changes to Terms</h2>
+    </div>
+    <p>We reserve the right to modify these Terms at any time at our sole discretion. When we make material changes, we will update the "Last Updated" date at the top of this page.</p>
+    <p>Changes become effective immediately upon posting. Your continued use of the Platform after any changes constitutes your acceptance of the new Terms. We encourage you to review these Terms periodically.</p>
+    <p>If you disagree with any changes, you must stop using the Platform immediately.</p>
+  </div>
+
+  <!-- Section 11 -->
+  <div class="section" id="governing">
+    <div class="section-header">
+      <div class="section-num">11</div>
+      <h2>Governing Law</h2>
+    </div>
+    <p>These Terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law principles. Any disputes arising from these Terms or use of the Platform shall be resolved through good-faith negotiation between the parties.</p>
+    <p>Given the decentralized and global nature of blockchain technology, you acknowledge that certain legal frameworks may not directly apply to decentralized applications, and you agree to interact with the Platform in accordance with the laws applicable in your own jurisdiction.</p>
+  </div>
+
+  <!-- Section 12 -->
+  <div class="section" id="contact">
+    <div class="section-header">
+      <div class="section-num">12</div>
+      <h2>Contact</h2>
+    </div>
+    <p>If you have any questions, concerns, or requests regarding these Terms of Service, please reach out through the following channels:</p>
+    <ul>
+      <li>Platform: Qpay on QMS Testnet</li>
+      <li>Block Explorer: <a href="https://testnet.qmsscan.io" target="_blank" rel="noopener noreferrer" style="color: var(--acc);">testnet.qmsscan.io</a></li>
+      <li>DEX: <a href="https://testnet.qwap.xyz" target="_blank" rel="noopener noreferrer" style="color: var(--acc);">testnet.qwap.xyz</a></li>
+    </ul>
+    <p>We are committed to addressing your concerns promptly and transparently.</p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/terms.html" class="active">Terms of Service</a>
+    <a href="/privacy.html">Privacy Policy</a>
+    <a href="/docs.html">Documentation</a>
+  </div>
+  <p>© 2026 Qpay. All rights reserved. Non-custodial stablecoin payments on QMS Network.</p>
+</footer>
+
+<button class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+</body>
+</html>

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Qpay Documentation</title>
+<style>
+  /* ── Reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:       #080e1a;
+    --bg2:      #0f1928;
+    --bg3:      #131f32;
+    --border:   #1e2d45;
+    --border2:  #243652;
+    --ink:      #f0f6ff;
+    --ink2:     #c8d8f0;
+    --muted:    #8aa0be;
+    --subtle:   #4a6080;
+    --acc:      #0ea5e9;
+    --acc2:     rgba(14,165,233,.12);
+    --success:  #34d399;
+    --warn:     #fbbf24;
+    --danger:   #f87171;
+    --usdt:     #26a17b;
+    --usdc:     #2775ca;
+    --radius:   14px;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink2);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--acc); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, kbd {
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-size: .875em;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 6px;
+    color: var(--acc);
+  }
+  pre {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+  }
+  pre code { background: none; border: none; padding: 0; font-size: .85em; color: var(--ink2); }
+  h1,h2,h3,h4 { color: var(--ink); font-weight: 700; line-height: 1.25; }
+  h1 { font-size: 2.2rem; letter-spacing: -.04em; }
+  h2 { font-size: 1.45rem; letter-spacing: -.025em; margin: 40px 0 14px; padding-top: 8px; border-top: 1px solid var(--border); }
+  h3 { font-size: 1.1rem; margin: 28px 0 10px; color: var(--ink2); }
+  h4 { font-size: .95rem; margin: 20px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  p  { margin-bottom: 14px; }
+  ul, ol { padding-left: 22px; margin-bottom: 14px; }
+  li { margin-bottom: 6px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; font-size: .9em; }
+  th { text-align: left; padding: 9px 14px; background: var(--bg3); border: 1px solid var(--border); color: var(--muted); font-size: .78em; text-transform: uppercase; letter-spacing: .06em; }
+  td { padding: 9px 14px; border: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+
+  /* ── Layout ── */
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    padding: 28px 0 40px;
+    flex-shrink: 0;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 22px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .sidebar-logo svg { flex-shrink: 0; }
+  .sidebar-logo-text { font-size: 1.1rem; font-weight: 800; color: var(--ink); letter-spacing: -.02em; }
+  .sidebar-logo-badge { font-size: .65rem; background: var(--acc2); color: var(--acc); border: 1px solid var(--acc); border-radius: 20px; padding: 1px 7px; font-weight: 600; margin-left: 4px; }
+  .sidebar-section { padding: 6px 22px 4px; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--subtle); margin-top: 10px; }
+  .sidebar-link {
+    display: block; padding: 7px 22px; font-size: .88rem; color: var(--muted);
+    border-left: 2px solid transparent; transition: all .15s;
+  }
+  .sidebar-link:hover { color: var(--ink); background: rgba(255,255,255,.03); text-decoration: none; }
+  .sidebar-link.active { color: var(--acc); border-left-color: var(--acc); background: var(--acc2); font-weight: 600; }
+
+  /* Main content */
+  .main { flex: 1; padding: 48px 52px 80px; max-width: 860px; }
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 28px 20px 60px; max-width: 100%; }
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #0d1c35 0%, #081220 100%);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 36px 36px 32px;
+    margin-bottom: 40px;
+    position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(14,165,233,.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag { display: inline-block; background: var(--acc2); color: var(--acc); border: 1px solid var(--acc); border-radius: 20px; padding: 3px 12px; font-size: .75rem; font-weight: 700; letter-spacing: .05em; margin-bottom: 14px; }
+  .hero h1 { margin-bottom: 12px; }
+  .hero h1 span { color: var(--acc); }
+  .hero p { color: var(--muted); font-size: 1.05rem; max-width: 560px; margin-bottom: 0; }
+
+  /* Callout boxes */
+  .callout { border-radius: var(--radius); padding: 14px 18px; margin: 16px 0 22px; display: flex; gap: 12px; align-items: flex-start; }
+  .callout-info    { background: rgba(14,165,233,.08);  border: 1px solid rgba(14,165,233,.25);  }
+  .callout-warn    { background: rgba(251,191,36,.07);  border: 1px solid rgba(251,191,36,.25);  }
+  .callout-success { background: rgba(52,211,153,.07);  border: 1px solid rgba(52,211,153,.25);  }
+  .callout-danger  { background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.25); }
+  .callout-icon { font-size: 1.1rem; line-height: 1.6; flex-shrink: 0; }
+  .callout-info    .callout-icon { color: var(--acc);     }
+  .callout-warn    .callout-icon { color: var(--warn);    }
+  .callout-success .callout-icon { color: var(--success); }
+  .callout-danger  .callout-icon { color: var(--danger);  }
+  .callout p { margin: 0; font-size: .92rem; }
+
+  /* Token badges */
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 10px; border-radius: 20px; font-size: .8rem; font-weight: 700; }
+  .badge-usdt { background: rgba(38,161,123,.15); border: 1px solid rgba(38,161,123,.4); color: #26a17b; }
+  .badge-usdc { background: rgba(39,117,202,.15); border: 1px solid rgba(39,117,202,.4); color: #2775ca; }
+  .badge-qms  { background: var(--acc2); border: 1px solid var(--acc); color: var(--acc); }
+
+  /* Step boxes */
+  .steps { display: flex; flex-direction: column; gap: 12px; margin: 14px 0 22px; }
+  .step  { display: flex; gap: 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; }
+  .step-num { width: 28px; height: 28px; min-width: 28px; border-radius: 8px; background: var(--acc2); border: 1px solid var(--acc); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 800; color: var(--acc); }
+  .step-body h4 { margin: 0 0 4px; text-transform: none; letter-spacing: 0; font-size: .95rem; color: var(--ink); }
+  .step-body p  { margin: 0; font-size: .9rem; }
+
+  /* Contract card */
+  .contract-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; }
+  .contract-card h4 { margin: 0 0 8px; text-transform: none; letter-spacing: 0; font-size: 1rem; color: var(--ink); }
+  .contract-card .addr { font-family: monospace; font-size: .82rem; color: var(--acc); word-break: break-all; }
+  .contract-card .meta { font-size: .8rem; color: var(--subtle); margin-top: 6px; }
+
+  /* ── TOC anchor offset ── */
+  [id] { scroll-margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <!-- Qpay icon -->
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="10" fill="#0EA5E9" fill-opacity=".15"/>
+        <circle cx="16" cy="16" r="9" stroke="#0EA5E9" stroke-width="2.2" fill="none"/>
+        <circle cx="16" cy="16" r="4.5" fill="#0EA5E9"/>
+        <line x1="22.3" y1="22.3" x2="26" y2="26" stroke="#0EA5E9" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <span class="sidebar-logo-text">Qpay <span class="sidebar-logo-badge">v1.0</span></span>
+    </div>
+
+    <div class="sidebar-section">Overview</div>
+    <a class="sidebar-link active" href="#introduction">Introduction</a>
+    <a class="sidebar-link" href="#architecture">Architecture</a>
+    <a class="sidebar-link" href="#network">Network</a>
+
+    <div class="sidebar-section">Getting Started</div>
+    <a class="sidebar-link" href="#connect-wallet">Connect Wallet</a>
+    <a class="sidebar-link" href="#get-tokens">Get Test Tokens</a>
+
+    <div class="sidebar-section">Payroll</div>
+    <a class="sidebar-link" href="#payroll-overview">Overview</a>
+    <a class="sidebar-link" href="#create-payroll">Create Payroll</a>
+    <a class="sidebar-link" href="#pay-now">Pay Employee</a>
+    <a class="sidebar-link" href="#payroll-tokens">Supported Tokens</a>
+
+    <div class="sidebar-section">Swap</div>
+    <a class="sidebar-link" href="#swap-overview">Overview</a>
+    <a class="sidebar-link" href="#swap-flow">Swap Flow</a>
+    <a class="sidebar-link" href="#slippage">Slippage & Deadline</a>
+    <a class="sidebar-link" href="#router">QWAP Router</a>
+
+    <div class="sidebar-section">Contracts</div>
+    <a class="sidebar-link" href="#contracts">Deployed Contracts</a>
+    <a class="sidebar-link" href="#abis">ABI Reference</a>
+
+    <div class="sidebar-section">Reference</div>
+    <a class="sidebar-link" href="#tokens">Token Addresses</a>
+    <a class="sidebar-link" href="#faq">FAQ</a>
+    <a class="sidebar-link" href="#changelog">Changelog</a>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-tag">TESTNET DOCUMENTATION</div>
+      <h1>Qpay <span>Developer</span> Docs</h1>
+      <p>Complete reference for Qpay — the payroll &amp; token swap platform on QMS Testnet. Covers wallet setup, payroll management, token swaps via QWAP, contract addresses, and the full API surface.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ INTRODUCTION -->
+    <section id="introduction">
+      <h2>Introduction</h2>
+      <p><strong>Qpay</strong> is a decentralised finance (DeFi) application built on the <strong>QMS Blockchain</strong> that provides two core services:</p>
+      <ul>
+        <li><strong>Payroll</strong> — create and pay employee salary entries using on-chain stablecoin transfers (USDT or USDC) directly from your wallet to the employee's wallet address. No intermediary, no custodian.</li>
+        <li><strong>Token Swap</strong> — exchange tokens on QMS Testnet via the <a href="https://testnet.qwap.xyz" target="_blank">QWAP</a> decentralised exchange router (Uniswap V2-compatible). Real on-chain execution with live quotes, configurable slippage, and swap deadline.</li>
+      </ul>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠</span>
+        <p><strong>Testnet only.</strong> Qpay v1.0 runs exclusively on QMS Testnet (Chain ID 19480). All tokens, transactions, and balances are for testing purposes. Do not use real funds.</p>
+      </div>
+
+      <h3>Key Features</h3>
+      <table>
+        <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Payroll Management</td><td>Create, track, and pay employee salaries in USDT or USDC. Each payroll has a start date enforced on-chain — payments are locked until the date arrives.</td></tr>
+          <tr><td>Token Swap</td><td>Swap QMS ↔ USDT, QMS ↔ USDC, and USDT ↔ USDC via QWAP Router V2.</td></tr>
+          <tr><td>Live Balances</td><td>Real-time USDT, USDC, and QMS balance display from the connected wallet.</td></tr>
+          <tr><td>Non-custodial</td><td>All transactions are signed by the user's wallet. Qpay never holds or controls funds.</td></tr>
+          <tr><td>Transaction History</td><td>Swap history and payroll payment history, each linking to the block explorer. Payroll records are stored permanently on-chain.</td></tr>
+          <tr><td>QMS Auto-detect</td><td>Automatically detects if the wallet is on the wrong network and prompts to switch to QMS Testnet.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ ARCHITECTURE -->
+    <section id="architecture">
+      <h2>Architecture</h2>
+      <p>Qpay is a fully client-side React application — there is no backend server. All blockchain interactions go directly from the user's browser to the QMS Testnet RPC node.</p>
+
+      <pre><code>┌─────────────────────────────────────┐
+│           User Browser              │
+│                                     │
+│  ┌────────────┐  ┌───────────────┐  │
+│  │  React UI  │  │  wagmi / viem │  │
+│  │  (Vite)    │◄─►  (Web3 layer) │  │
+│  └────────────┘  └──────┬────────┘  │
+│                         │           │
+└─────────────────────────┼───────────┘
+                          │ JSON-RPC
+              ┌───────────▼────────────┐
+              │  QMS Testnet Node      │
+              │  rpc.testnet.qms.finance│
+              └───────────┬────────────┘
+                          │
+              ┌───────────▼────────────┐
+              │  QMS Testnet Contracts   │
+              │  • QpayPayroll v3        │
+              │  • QpaySwap              │
+              │  • QWAP Router V2        │
+              │  • USDT / USDC ERC-20    │
+              │  • Create2Factory        │
+              └─────────────────────────┘</code></pre>
+
+      <h3>Tech Stack</h3>
+      <table>
+        <thead><tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>Frontend</td><td>React 18 + Vite + TypeScript</td><td>UI framework &amp; build tool</td></tr>
+          <tr><td>Web3</td><td>wagmi v2 + viem + ConnectKit</td><td>Wallet connection &amp; contract calls</td></tr>
+          <tr><td>State</td><td>React state + on-chain contract storage</td><td>Payroll: QpayPayroll contract · Swap history: QpaySwap contract · No localStorage</td></tr>
+          <tr><td>Styling</td><td>Tailwind CSS v3 + inline styles</td><td>Dark-mode design system</td></tr>
+          <tr><td>Notifications</td><td>Sonner</td><td>Transaction toasts</td></tr>
+          <tr><td>Icons</td><td>Lucide React</td><td>UI iconography</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ NETWORK -->
+    <section id="network">
+      <h2>Network Configuration</h2>
+      <p>Qpay runs on <strong>QMS Testnet</strong>. Add this network to MetaMask or any EVM-compatible wallet:</p>
+
+      <table>
+        <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Network Name</td><td>QMS Testnet</td></tr>
+          <tr><td>RPC URL</td><td><code>https://rpc.testnet.qms.finance</code></td></tr>
+          <tr><td>Chain ID</td><td><code>19480</code></td></tr>
+          <tr><td>Currency Symbol</td><td><code>QMS</code></td></tr>
+          <tr><td>Block Explorer</td><td><a href="https://testnet.qmsscan.io" target="_blank">https://testnet.qmsscan.io</a></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ</span>
+        <p>Qpay detects your network automatically. If your wallet is not on QMS Testnet, a banner appears with a <strong>Switch Network</strong> button that adds and switches in one click.</p>
+      </div>
+
+      <h3>Adding QMS Testnet Manually</h3>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Open MetaMask</h4><p>Click the network selector (top-left dropdown).</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Add Network</h4><p>Click <em>Add a network</em> → <em>Add a network manually</em>.</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Fill in the details</h4><p>Enter the RPC URL, Chain ID <code>19480</code>, symbol <code>QMS</code>, and explorer URL from the table above.</p></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Save &amp; Switch</h4><p>Click <em>Save</em>. MetaMask will switch to QMS Testnet automatically.</p></div></div>
+      </div>
+    </section>
+
+    <hr />
+
+    <!-- ═══════════════════════════════════════════════════ GETTING STARTED -->
+    <section id="connect-wallet">
+      <h2>Connect Wallet</h2>
+      <p>Qpay uses <strong>ConnectKit</strong> to support all major EVM wallets:</p>
+      <ul>
+        <li>MetaMask (recommended)</li>
+        <li>WalletConnect (any mobile wallet)</li>
+        <li>Coinbase Wallet</li>
+        <li>Any injected EIP-1193 provider</li>
+      </ul>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Click "Connect Wallet"</h4><p>The button appears in the top-right corner of the app on all pages.</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Select your wallet</h4><p>Choose from the modal and approve the connection request in your wallet.</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Switch to QMS Testnet</h4><p>If prompted, approve the network switch. Qpay will add QMS Testnet to your wallet automatically.</p></div></div>
+      </div>
+    </section>
+
+    <section id="get-tokens">
+      <h2>Get Test Tokens</h2>
+      <p>To use Qpay on testnet you need:</p>
+      <ul>
+        <li><strong>QMS</strong> — native gas token for transaction fees</li>
+        <li><strong>USDT or USDC</strong> — stablecoins for payroll and swap</li>
+      </ul>
+      <div class="callout callout-success">
+        <span class="callout-icon">✓</span>
+        <p>Use the faucet at <a href="https://faucet.qms.finance" target="_blank">faucet.qms.finance</a> (if available) or request from the QMS community Discord to receive test QMS and stablecoins on Testnet.</p>
+      </div>
+    </section>
+
+    <hr />
+
+    <!-- ═══════════════════════════════════════════════════════════ PAYROLL -->
+    <section id="payroll-overview">
+      <h2>Payroll — Overview</h2>
+      <p>The Payroll module lets you create salary entries and execute on-chain stablecoin transfers to employee wallet addresses.</p>
+
+      <h3>How it works</h3>
+      <p>Each payroll entry is stored permanently in the <code>QpayPayroll</code> smart contract on QMS Testnet. When you click <strong>Pay</strong>, Qpay calls <code>payEmployee(payrollId)</code> on the contract — the contract pulls the token amount from your wallet (via ERC-20 allowance) and sends it directly to the employee's wallet. The contract enforces the start date: if <code>block.timestamp &lt; startDate</code>, the call reverts with <code>PayrollNotDueYet</code>.</p>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ</span>
+        <p>Qpay does not escrow funds. The transfer is immediate and irreversible once confirmed on-chain. Always verify the employee's wallet address before paying.</p>
+      </div>
+    </section>
+
+    <section id="create-payroll">
+      <h2>Create Payroll</h2>
+      <p>Navigate to <strong>Payroll → New Payroll</strong> (or tap Payroll in the bottom navigation, then the + button).</p>
+
+      <h3>Fields</h3>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Employee Name</td><td>Text</td><td>Display name for the payroll record.</td></tr>
+          <tr><td>Wallet Address</td><td>0x… address</td><td>The recipient's EVM wallet address. Must be a valid checksummed address.</td></tr>
+          <tr><td>Salary Amount</td><td>Number</td><td>Amount in the selected stablecoin (USDT or USDC). Uses 6 decimal precision.</td></tr>
+          <tr><td>Token</td><td>USDT / USDC</td><td>The stablecoin to pay with. Cannot be changed after creation.</td></tr>
+          <tr><td>Start Date</td><td>Date</td><td>The date the payroll becomes payable. The smart contract enforces this — <code>payEmployee()</code> reverts with <code>PayrollNotDueYet</code> if called before this date. The Pay button in the UI is also locked until the date arrives.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Validation</h3>
+      <ul>
+        <li>Wallet address must match <code>/^0x[0-9a-fA-F]{40}$/</code></li>
+        <li>Amount must be greater than 0</li>
+        <li>Your wallet must be connected and on QMS Testnet</li>
+        <li>You must have sufficient stablecoin balance to pay</li>
+      </ul>
+    </section>
+
+    <section id="pay-now">
+      <h2>Pay Employee</h2>
+      <p>On the Payroll list, each pending entry shows its due status. When the start date has arrived, use <strong>Pay All</strong> (batch) or pay individually.</p>
+
+      <h3>Pay All (Batch)</h3>
+      <p>The recommended flow for paying multiple employees at once. Click <strong>⚡ Pay All (N)</strong> in the top-right of the Active tab:</p>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Approve USDT (if needed)</h4><p>Qpay requests approval for the <code>QpayPayroll</code> contract to spend USDT from your wallet. Confirm in MetaMask.</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Approve USDC (if needed)</h4><p>Same as above for USDC if any payrolls use USDC. Skipped if all payrolls are USDT-only.</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Batch payment transaction</h4><p>One transaction calls <code>batchPayEmployees([id1, id2, …])</code>. All employees are paid atomically — either all succeed or all revert.</p></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><h4>All entries marked Paid</h4><p>Each payroll status changes to <em>Paid</em>. Tx hashes appear in Payroll History.</p></div></div>
+      </div>
+
+      <h3>Individual Pay</h3>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Approve token</h4><p>Click <em>Approve USDT/USDC</em> and confirm. Only needed once per token if allowance is sufficient.</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Click Pay</h4><p>After approval, the button changes to <em>Pay USDT/USDC</em>. Confirm the transaction in your wallet.</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Confirmed</h4><p>Entry status changes to <em>Paid</em> with tx hash and explorer link in Payroll History.</p></div></div>
+      </div>
+
+      <h3>Contract Functions</h3>
+      <table>
+        <thead><tr><th>Action</th><th>Function</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Pay one employee</td><td><code>payEmployee(uint256 payrollId)</code></td><td>Reverts if startDate not reached</td></tr>
+          <tr><td>Pay many employees</td><td><code>batchPayEmployees(uint256[] payrollIds)</code></td><td>Max 20 entries, atomic</td></tr>
+          <tr><td>Approval required</td><td><code>IERC20.approve(QpayPayroll, maxUint256)</code></td><td>One-time per token</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="payroll-tokens">
+      <h2>Supported Payroll Tokens</h2>
+      <p>Payroll supports two stablecoins on QMS Testnet:</p>
+
+      <table>
+        <thead><tr><th>Token</th><th>Contract Address</th><th>Decimals</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-usdt">USDT</span> Tether USD</td>
+            <td><code>0x72577544f4134a25E7f09d0B5FF0ca05A1249EbF</code></td>
+            <td>6</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-usdc">USDC</span> USD Coin</td>
+            <td><code>0xDfF68E53a0A8275212927c12017f5aB5f1842a04</code></td>
+            <td>6</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr />
+
+    <!-- ═══════════════════════════════════════════════════════════════ SWAP -->
+    <section id="swap-overview">
+      <h2>Swap — Overview</h2>
+      <p>The Swap module integrates with <a href="https://testnet.qwap.xyz" target="_blank">QWAP</a>, the decentralised exchange on QMS Testnet. It uses the QWAP Router V2 (Uniswap V2-compatible) for on-chain token swaps with real price discovery via liquidity pools.</p>
+
+      <h3>Supported Pairs</h3>
+      <table>
+        <thead><tr><th>Pair</th><th>Route</th></tr></thead>
+        <tbody>
+          <tr><td>QMS → USDT</td><td>QMS (native) → WQMS → USDT</td></tr>
+          <tr><td>QMS → USDC</td><td>QMS (native) → WQMS → USDC</td></tr>
+          <tr><td>USDT → USDC</td><td>USDT → WQMS → USDC</td></tr>
+          <tr><td>USDC → USDT</td><td>USDC → WQMS → USDT</td></tr>
+          <tr><td>USDT → QMS</td><td>USDT → WQMS → QMS (native)</td></tr>
+          <tr><td>USDC → QMS</td><td>USDC → WQMS → QMS (native)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ</span>
+        <p>WQMS (Wrapped QMS) is the hub token in all QWAP pairs. Qpay automatically builds the correct multi-hop path — you only select the tokens you want.</p>
+      </div>
+    </section>
+
+    <section id="swap-flow">
+      <h2>Swap Flow</h2>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Enter amount</h4><p>Type the amount in the <em>Sell</em> box. Use the 25% / 50% / 75% / MAX buttons to fill from your balance.</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Live quote</h4><p>Qpay calls <code>getAmountsOut</code> on the QWAP Router in real-time. The <em>Receive</em> box updates with the estimated output.</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Approve (ERC-20 only)</h4><p>If the sell token is USDT or USDC, and your allowance is insufficient, the button shows <em>Approve TOKEN</em>. Confirm the approval transaction first.</p></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Swap</h4><p>Click <em>Swap</em> and confirm in your wallet. Qpay submits the correct router function with your <code>amountOutMin</code> and deadline.</p></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Confirmed</h4><p>Once the transaction is mined, the green <em>Swap Confirmed!</em> banner appears with an Explorer link. The swap is recorded in History.</p></div></div>
+      </div>
+
+      <h3>Router Functions Used</h3>
+      <table>
+        <thead><tr><th>Scenario</th><th>Router Function</th></tr></thead>
+        <tbody>
+          <tr><td>QMS → Token</td><td><code>swapExactETHForTokens(amountOutMin, path, to, deadline)</code></td></tr>
+          <tr><td>Token → QMS</td><td><code>swapExactTokensForETH(amountIn, amountOutMin, path, to, deadline)</code></td></tr>
+          <tr><td>Token → Token</td><td><code>swapExactTokensForTokens(amountIn, amountOutMin, path, to, deadline)</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="slippage">
+      <h2>Slippage &amp; Deadline</h2>
+      <p>Click the <strong>Auto slippage</strong> button (top-right of the swap card) to open settings.</p>
+
+      <h3>Slippage Tolerance</h3>
+      <p>Controls how much the output can deviate from the quoted amount before the transaction reverts.</p>
+      <table>
+        <thead><tr><th>Mode</th><th>Value</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Auto</td><td>2.5%</td><td>Recommended for most swaps. Set automatically.</td></tr>
+          <tr><td>Manual</td><td>0.01% – 50%</td><td>Toggle Auto off and enter a custom value.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠</span>
+        <p>Setting slippage above 5% risks front-running. A warning is shown when you enter a high value.</p>
+      </div>
+
+      <h3>Swap Deadline</h3>
+      <p>The transaction will revert if not mined within this many minutes. Default: <strong>5 minutes</strong>. Range: 1–60 minutes.</p>
+      <p>Formula: <code>deadline = block.timestamp + (minutes × 60)</code></p>
+
+      <h3>amountOutMin Calculation</h3>
+      <pre><code>// rawOut = getAmountsOut result (bigint)
+// slipBps = slippage% × 100  (e.g. 2.5% → 250)
+amountOutMin = rawOut - (rawOut × slipBps / 10000)</code></pre>
+    </section>
+
+    <section id="router">
+      <h2>QWAP Router</h2>
+      <p>Qpay routes all swaps through the official QWAP V2 Router deployed on QMS Testnet.</p>
+
+      <div class="contract-card">
+        <h4>QWAP Router V2</h4>
+        <div class="addr">0x93AFF45f28e5DF1b55f5AEFEfB807De843b12619</div>
+        <div class="meta">Network: QMS Testnet · Protocol: Uniswap V2 Fork · Interface: IUniswapV2Router02</div>
+      </div>
+
+      <div class="contract-card">
+        <h4>WQMS (Wrapped QMS)</h4>
+        <div class="addr">0x9AA510295aC664A3d5A3182a3eFe959DE2B12c34</div>
+        <div class="meta">Decimals: 18 · ERC-20 wrapper for native QMS used as router hub token</div>
+      </div>
+    </section>
+
+    <hr />
+
+    <!-- ═══════════════════════════════════════════════════════════ CONTRACTS -->
+    <section id="contracts">
+      <h2>Deployed Contracts</h2>
+
+      <div class="contract-card">
+        <h4>Create2Factory</h4>
+        <div class="addr">0x176725adc529512bD7Cad093a24969954ad34e51</div>
+        <div class="meta">
+          Network: QMS Testnet (Chain ID 19480) ·
+          Deployer: 0x4389006Dd061d13129a894b9E03a04EaE9B377b9 ·
+          Block: confirmed October 2026 ·
+          <a href="https://testnet.qmsscan.io/address/0x176725adc529512bD7Cad093a24969954ad34e51" target="_blank">View on Explorer ↗</a>
+        </div>
+      </div>
+
+      <div class="contract-card">
+        <h4>QpayPayroll <span style="font-size:.75rem;color:#0EA5E9;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.25);border-radius:12px;padding:2px 8px;vertical-align:middle;">v3</span></h4>
+        <div class="addr">0xFCB2D1735D05A396aAf817b82AE1145050f18885</div>
+        <div class="meta">
+          Network: QMS Testnet (Chain ID 19480) ·
+          Deployer: 0x4389006Dd061d13129a894b9E03a04EaE9B377b9 ·
+          Deployed: 2026-10-29 ·
+          USDT: 0x72577544f4134a25E7f09d0B5FF0ca05A1249EbF ·
+          USDC: 0xDfF68E53a0A8275212927c12017f5aB5f1842a04 ·
+          <a href="https://testnet.qmsscan.io/address/0xFCB2D1735D05A396aAf817b82AE1145050f18885" target="_blank">View on Explorer ↗</a>
+        </div>
+      </div>
+      <p>The <code>QpayPayroll</code> contract stores all payroll entries permanently on-chain, linked to the employer's wallet. Key functions: <code>createPayroll()</code>, <code>batchCreatePayroll()</code>, <code>payEmployee()</code> (enforces <code>startDate</code> via <code>block.timestamp</code>), <code>batchPayEmployees()</code>, <code>cancelPayroll()</code>, <code>getPayrollBatch()</code>. Uses <code>ReentrancyGuard</code> and custom errors for gas-efficient reverts.</p>
+
+      <div class="contract-card">
+        <h4>QpaySwap</h4>
+        <div class="addr">0xeDDf43468577A03B89496A8869277Dd62791cf43</div>
+        <div class="meta">
+          Network: QMS Testnet (Chain ID 19480) ·
+          Deployer: 0x4389006Dd061d13129a894b9E03a04EaE9B377b9 ·
+          Deployed: 2026-10-29 ·
+          <a href="https://testnet.qmsscan.io/address/0xeDDf43468577A03B89496A8869277Dd62791cf43" target="_blank">View on Explorer ↗</a>
+        </div>
+      </div>
+      <p>The <code>QpaySwap</code> contract stores swap history permanently on-chain per wallet. After each QWAP swap is confirmed, the frontend calls <code>recordSwap(wallet, txHash, tokenIn, tokenOut, amountIn, amountOut)</code>. History is readable via <code>getSwapHistory(address)</code> — no scanning, no localStorage. Ring buffer of 500 entries per wallet. Requires <code>msg.sender == wallet</code> for authenticity.</p>
+      <p>The <code>Create2Factory</code> is a permissionless deployment helper contract. Any caller can deploy arbitrary bytecode to a deterministic address derived from a salt and bytecode hash. It wraps OpenZeppelin's <code>Create2.deploy</code>.</p>
+
+      <h3>Interface</h3>
+      <pre><code>// Deploy bytecode at a deterministic CREATE2 address
+function deploy(
+    bytes32 salt,
+    bytes memory bytecode
+) external payable returns (address deployed);
+
+// Predict the address before deploying
+function computeAddress(
+    bytes32 salt,
+    bytes32 bytecodeHash
+) external view returns (address predicted);</code></pre>
+    </section>
+
+    <section id="abis">
+      <h2>ABI Reference</h2>
+
+      <h3>ERC-20 (USDT / USDC)</h3>
+      <pre><code>[
+  { "type": "function", "name": "balanceOf",
+    "inputs": [{"name":"account","type":"address"}],
+    "outputs": [{"name":"","type":"uint256"}],
+    "stateMutability": "view" },
+  { "type": "function", "name": "transfer",
+    "inputs": [{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],
+    "outputs": [{"name":"","type":"bool"}],
+    "stateMutability": "nonpayable" },
+  { "type": "function", "name": "allowance",
+    "inputs": [{"name":"owner","type":"address"},{"name":"spender","type":"address"}],
+    "outputs": [{"name":"","type":"uint256"}],
+    "stateMutability": "view" },
+  { "type": "function", "name": "approve",
+    "inputs": [{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],
+    "outputs": [{"name":"","type":"bool"}],
+    "stateMutability": "nonpayable" },
+  { "type": "function", "name": "decimals",
+    "inputs": [], "outputs": [{"name":"","type":"uint8"}],
+    "stateMutability": "view" }
+]</code></pre>
+
+      <h3>QWAP Router V2 (key functions)</h3>
+      <pre><code>// Quote
+getAmountsOut(uint amountIn, address[] path) → uint[] amounts
+
+// Swap native QMS for tokens
+swapExactETHForTokens(
+    uint amountOutMin,
+    address[] path,
+    address to,
+    uint deadline
+) payable → uint[] amounts
+
+// Swap tokens for native QMS
+swapExactTokensForETH(
+    uint amountIn,
+    uint amountOutMin,
+    address[] path,
+    address to,
+    uint deadline
+) → uint[] amounts
+
+// Swap tokens for tokens
+swapExactTokensForTokens(
+    uint amountIn,
+    uint amountOutMin,
+    address[] path,
+    address to,
+    uint deadline
+) → uint[] amounts</code></pre>
+    </section>
+
+    <hr />
+
+    <!-- ═══════════════════════════════════════════════════════════ REFERENCE -->
+    <section id="tokens">
+      <h2>Token Addresses</h2>
+      <table>
+        <thead><tr><th>Token</th><th>Symbol</th><th>Address</th><th>Decimals</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Tether USD</td>
+            <td><span class="badge badge-usdt">USDT</span></td>
+            <td><code>0x72577544f4134a25E7f09d0B5FF0ca05A1249EbF</code></td>
+            <td>6</td>
+          </tr>
+          <tr>
+            <td>USD Coin</td>
+            <td><span class="badge badge-usdc">USDC</span></td>
+            <td><code>0xDfF68E53a0A8275212927c12017f5aB5f1842a04</code></td>
+            <td>6</td>
+          </tr>
+          <tr>
+            <td>QMS (native gas)</td>
+            <td><span class="badge badge-qms">QMS</span></td>
+            <td>Native — no contract address</td>
+            <td>18</td>
+          </tr>
+          <tr>
+            <td>Wrapped QMS</td>
+            <td><span class="badge badge-qms">WQMS</span></td>
+            <td><code>0x9AA510295aC664A3d5A3182a3eFe959DE2B12c34</code></td>
+            <td>18</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="faq">
+      <h2>FAQ</h2>
+
+      <h3>Why does my swap show "No liquidity for this pair"?</h3>
+      <p>The QWAP pool for that pair may have no liquidity on testnet. Try a different pair or check the <a href="https://testnet.qwap.xyz" target="_blank">QWAP pools page</a>.</p>
+
+      <h3>Why does the Swap button stay disabled?</h3>
+      <p>The button is disabled when: wallet is not connected, wrong network, amount is 0, no quote is available, or your balance is insufficient. Check each condition in order.</p>
+
+      <h3>Why does the approval keep spinning?</h3>
+      <p>Make sure the approval transaction is actually confirmed on-chain. If it failed, try again. If the spinner keeps going after a confirmed approval, try refreshing the page.</p>
+
+      <h3>Is payroll data stored on-chain?</h3>
+      <p>Yes. All payroll entries (employee name, wallet, amount, start date, status) are stored permanently in the <code>QpayPayroll</code> smart contract on QMS Testnet. Data is linked to your employer wallet address — connect the same wallet from any browser or device and your payrolls will be there.</p>
+
+      <h3>Can I use Qpay on mainnet?</h3>
+      <p>Qpay v1.2 is testnet-only. A mainnet deployment requires independent security review and production configuration.</p>
+
+      <h3>What is the WQMS route?</h3>
+      <p>WQMS (Wrapped QMS) is the hub token in the QWAP DEX. All pairs route through WQMS. So a USDT → USDC swap becomes USDT → WQMS → USDC on-chain. Qpay builds this path automatically.</p>
+
+      <h3>Is swap history stored on-chain?</h3>
+      <p>Yes. After each swap is confirmed, Qpay automatically calls <code>recordSwap()</code> on the <code>QpaySwap</code> contract. Your swap history is stored permanently on-chain and is accessible from any device or browser as long as you connect the same wallet. No localStorage is used.</p>
+
+      <h3>My transaction reverted — what happened?</h3>
+      <p>Common causes: slippage too low (price moved), deadline expired, insufficient gas (QMS), or the pool has insufficient liquidity. Increase slippage or retry.</p>
+    </section>
+
+    <section id="changelog">
+      <h2>Changelog</h2>
+      <h3>v1.2.0 — 2026-10-29</h3>
+      <ul>
+        <li>QpayPayroll v3 deployed — added <code>batchCreatePayroll()</code> and <code>batchPayEmployees()</code> for creating and paying multiple employees in one transaction</li>
+        <li>Pay All button: auto-approve USDT/USDC then send one batch payment transaction</li>
+        <li>QpaySwap contract deployed — swap history stored permanently on-chain, no localStorage, cross-device/browser</li>
+        <li>Swap History and Payroll History now read directly from contract storage (no eth_getLogs scanning)</li>
+        <li>Removed all localStorage usage — all app data is fully on-chain</li>
+        <li>Swap records: after swap confirmed, <code>recordSwap()</code> called automatically to save to QpaySwap contract</li>
+        <li>Terms of Service and Privacy Policy pages added</li>
+        <li>Overview page: Documents, Terms, and Privacy links in footer</li>
+      </ul>
+      <h3>v1.1.0 — 2026-10-14</h3>
+      <ul>
+        <li>QpayPayroll v2 deployed — startDate enforced on-chain via <code>block.timestamp</code></li>
+        <li>Pay button locked in UI until startDate arrives; shows countdown badge</li>
+        <li>Payroll data migrated from localStorage to on-chain storage (persistent across devices)</li>
+        <li>Frequency field removed — not relevant without on-chain scheduler</li>
+        <li>Batch payroll: select multiple pending entries and pay in one session</li>
+        <li>Cancel payroll requires wallet confirmation (on-chain state change)</li>
+        <li>Official token logos: QMS (purple square bracket), USDT (Tether green), USDC (blue dollar)</li>
+        <li>Swap page: real QWAP router integration, QWAP-style slippage/deadline panel</li>
+        <li>History page: separate Swap History and Payroll History tabs</li>
+      </ul>
+      <h3>v1.0.0 — 2026-10-10</h3>
+      <ul>
+        <li>Initial release on QMS Testnet</li>
+        <li>Payroll module: create, track, and pay employees in USDT / USDC</li>
+        <li>Swap module via QWAP Router V2: QMS ↔ USDT, QMS ↔ USDC, USDT ↔ USDC</li>
+        <li>Live token balances (QMS, USDT, USDC) from connected wallet</li>
+        <li>Auto-detect and switch to QMS Testnet</li>
+        <li>Create2Factory deployed to QMS Testnet</li>
+        <li>Overview page with full project documentation</li>
+      </ul>
+    </section>
+
+    <hr />
+    <p style="color: var(--subtle); font-size:.82rem; margin-top:8px;">
+      Qpay v1.2 · QMS Testnet · Built with React, wagmi &amp; viem ·
+      <a href="https://testnet.qwap.xyz" target="_blank">QWAP DEX</a> ·
+      <a href="https://testnet.qmsscan.io" target="_blank">Explorer</a>
+    </p>
+
+  </main>
+</div>
+
+<script>
+  // Active sidebar link on scroll
+  const links = document.querySelectorAll('.sidebar-link');
+  const sections = document.querySelectorAll('section[id], div[id]');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`.sidebar-link[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
