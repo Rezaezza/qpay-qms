@@ -6,8 +6,8 @@ import "../QpayPayroll.sol";
 
 contract DeployQpayPayroll is Script {
     // QMS Testnet stablecoin addresses
-    address constant USDT = 0x72577544f4134a25E7f09d0B5FF0ca05A1249EbF;
-    address constant USDC = 0xDfF68E53a0A8275212927c12017f5aB5f1842a04;
+    address constant USDT = 0x5D1386fC130143F92511bC2D18124D3E414ed429;
+    address constant USDC = 0xDd4D61DF875cc613E1372c78827a5F4C2741bf11;
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");

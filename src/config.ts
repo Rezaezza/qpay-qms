@@ -46,7 +46,7 @@ export const STABLECOINS: StablecoinToken[] = [
   {
     symbol:   'USDT',
     name:     'Tether USD',
-    address:  '0x72577544f4134a25E7f09d0B5FF0ca05A1249EbF',
+    address:  '0x5D1386fC130143F92511bC2D18124D3E414ed429',
     decimals: 6,
     color:    '#26a17b',
     bgColor:  'rgba(38,161,123,0.12)',
@@ -54,12 +54,18 @@ export const STABLECOINS: StablecoinToken[] = [
   {
     symbol:   'USDC',
     name:     'USD Coin',
-    address:  '0xDfF68E53a0A8275212927c12017f5aB5f1842a04',
+    address:  '0xDd4D61DF875cc613E1372c78827a5F4C2741bf11',
     decimals: 6,
     color:    '#2775ca',
     bgColor:  'rgba(39,117,202,0.12)',
   },
 ]
+
+// Legacy token addresses (pre-v4). Kept only so old swap history still resolves to a symbol.
+export const LEGACY_STABLECOIN_SYMBOLS: Record<string, 'USDT' | 'USDC'> = {
+  '0x72577544f4134a25e7f09d0b5ff0ca05a1249ebf': 'USDT',
+  '0xdff68e53a0a8275212927c12017f5ab5f1842a04': 'USDC',
+}
 
 export function getStablecoin(symbol: 'USDT' | 'USDC'): StablecoinToken {
   return STABLECOINS.find((t) => t.symbol === symbol)!
@@ -84,8 +90,8 @@ export const SWAP_TOKENS: SwapToken[] = [
   // Native QMS — wrap to WQMS before routing
   { symbol: 'QMS',  name: 'QMS',       address: 'NATIVE',                                      decimals: 18, color: '#0EA5E9', bg: '#0c1f33', abbr: 'QM' },
   // Stablecoins
-  { symbol: 'USDT', name: 'Tether USD',address: '0x72577544f4134a25E7f09d0B5FF0ca05A1249EbF', decimals: 6,  color: '#26a17b', bg: '#0a2118', abbr: 'UT' },
-  { symbol: 'USDC', name: 'USD Coin',  address: '0xDfF68E53a0A8275212927c12017f5aB5f1842a04', decimals: 6,  color: '#2775ca', bg: '#0d1b2e', abbr: 'UC' },
+  { symbol: 'USDT', name: 'Tether USD',address: '0x5D1386fC130143F92511bC2D18124D3E414ed429', decimals: 6,  color: '#26a17b', bg: '#0a2118', abbr: 'UT' },
+  { symbol: 'USDC', name: 'USD Coin',  address: '0xDd4D61DF875cc613E1372c78827a5F4C2741bf11', decimals: 6,  color: '#2775ca', bg: '#0d1b2e', abbr: 'UC' },
 ]
 
 // WQMS address used for routing native QMS swaps
@@ -189,7 +195,8 @@ export const ERC20_ABI = [
 // ─── QpayPayroll Contract ────────────────────────────────────────────────────
 // v2: startDate enforcement via block.timestamp check (redeployed 2026-10-14)
 // v3 — batchCreatePayroll + batchPayEmployees
-export const QPAY_PAYROLL_ADDRESS = '0xFCB2D1735D05A396aAf817b82AE1145050f18885' as const
+// v5 — recordPaymentTx stores the payment tx hash on-chain (PayrollEntry.txRef)
+export const QPAY_PAYROLL_ADDRESS = '0x20aD2D6764d45c5A79DDBaB70aF11C2d86FbA6dB' as const
 
 // Enum values (must match Solidity enum order)
 export const PAY_TOKEN  = { USDT: 0, USDC: 1 } as const
@@ -350,6 +357,38 @@ export const QPAY_PAYROLL_ABI = [
   {
     type: 'error', name: 'BatchPaymentFailed',
     inputs: [{ name: 'payrollId', type: 'uint256' }],
+  },
+  // Payment receipt registry (v5): payment tx hash stored in PayrollEntry.txRef
+  {
+    type: 'function', name: 'recordPaymentTx', stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'payrollIds', type: 'uint256[]' },
+      { name: 'txHash',     type: 'bytes32'   },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function', name: 'getPaymentTxHashes', stateMutability: 'view',
+    inputs:  [{ name: 'ids', type: 'uint256[]' }],
+    outputs: [{ name: 'hashes', type: 'bytes32[]' }],
+  },
+  {
+    type: 'event', name: 'PaymentTxRecorded',
+    inputs: [
+      { name: 'id',       type: 'uint256', indexed: true },
+      { name: 'employer', type: 'address', indexed: true },
+      { name: 'txHash',   type: 'bytes32', indexed: false },
+    ],
+  },
+  { type: 'error', name: 'InvalidTxHash',   inputs: [] },
+  { type: 'error', name: 'TokenNotContract', inputs: [] },
+  {
+    type: 'error', name: 'PaymentTxAlreadyRecorded',
+    inputs: [{ name: 'payrollId', type: 'uint256' }],
+  },
+  {
+    type: 'error', name: 'PayrollNotPaid',
+    inputs: [{ name: 'payrollId', type: 'uint256' }, { name: 'status', type: 'uint8' }],
   },
   // ERC20 allowance check for approve-before-pay flow
   {

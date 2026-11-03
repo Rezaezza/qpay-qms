@@ -23,6 +23,7 @@ import { formatAmount, getExplorerTxUrl, parseOnchainError } from '../lib/utils'
 import { Q } from '../theme'
 import { useTokenBalances } from '../hooks/useTokenBalances'
 import { useRecordSwap } from '../hooks/useSwapHistory'
+import { useRefreshOnchain } from '../hooks/useRefreshOnchain'
 
 import { TokenIcon as TokIcon } from '../components/TokenIcon'
 
@@ -220,6 +221,7 @@ export function Swap() {
 
   // All token balances from a single hook
   const { balances: allBalances } = useTokenBalances(address)
+  const refreshOnchain = useRefreshOnchain()
 
   // Helper: get formatted balance string for any token symbol
   function getBal(symbol: string): string {
@@ -351,6 +353,18 @@ export function Swap() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSwapSuccess, isSwapError])
+
+  // ── Auto-refresh on-chain data once the swap is confirmed ───────────────────
+  // Balances (native + ERC-20), allowance and the live quote all depend on state
+  // the swap just changed, so invalidate those wagmi queries.
+  useEffect(() => {
+    if (isSwapSuccess) void refreshOnchain()
+  }, [isSwapSuccess, refreshOnchain])
+
+  // ── Refresh swap history once recordSwap is confirmed on-chain ──────────────
+  useEffect(() => {
+    if (isRecordSuccess) void refreshOnchain()
+  }, [isRecordSuccess, refreshOnchain])
 
   // ── Re-fetch allowance after approval confirm, then reset step ──────────────
   useEffect(() => {

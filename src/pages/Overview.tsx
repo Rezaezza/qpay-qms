@@ -124,7 +124,7 @@ export function Overview({ onNavigate, onOpen }: { onNavigate: (p: string) => vo
         {/* Logo + badge */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <QpayLogo size={40} showText />
-          <span style={chip}>v1.2 Testnet</span>
+          <span style={chip}>v1.4 Testnet</span>
         </div>
 
         {/* Headline */}
@@ -246,8 +246,8 @@ export function Overview({ onNavigate, onOpen }: { onNavigate: (p: string) => vo
       {/* ── Tokens ───────────────────────────────────────────────────── */}
       <SectionHead label="Supported Stablecoins" />
       <div style={{ ...card, padding: '8px 22px', marginBottom: 24 }}>
-        <TokenRow symbol="USDT" name="Tether USD" address="0x72577544f4134a25E7f09d0B5FF0ca05A1249EbF" decimals={6} color="#26a17b" />
-        <TokenRow symbol="USDC" name="USD Coin"   address="0xDfF68E53a0A8275212927c12017f5aB5f1842a04" decimals={6} color="#2775ca" />
+        <TokenRow symbol="USDT" name="Tether USD" address="0x5D1386fC130143F92511bC2D18124D3E414ed429" decimals={6} color="#26a17b" />
+        <TokenRow symbol="USDC" name="USD Coin"   address="0xDd4D61DF875cc613E1372c78827a5F4C2741bf11" decimals={6} color="#2775ca" />
         <div style={{ padding: '12px 0 4px' }}>
           <p style={{ color: Q.subtle, fontSize: 11, margin: 0, lineHeight: 1.5 }}>
             Both tokens have 6 decimal places. Used for payroll payments. QMS is the native gas token.
@@ -319,7 +319,7 @@ export function Overview({ onNavigate, onOpen }: { onNavigate: (p: string) => vo
         </div>
       </div>
 
-      {/* QpayPayroll v3 */}
+      {/* QpayPayroll v5 */}
       <div style={{ ...card, padding: '20px 22px', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
           <div style={{ width: 40, height: 40, borderRadius: 12, background: Q.accDim, border: `1.5px solid ${Q.border2}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -328,11 +328,11 @@ export function Overview({ onNavigate, onOpen }: { onNavigate: (p: string) => vo
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <p style={{ color: Q.ink, fontSize: 14, fontWeight: 700, margin: 0 }}>QpayPayroll</p>
-              <span style={{ fontSize: 10, color: Q.acc, background: Q.accDim, border: `1px solid ${Q.border2}`, borderRadius: 20, padding: '2px 7px', fontWeight: 700 }}>v3</span>
+              <span style={{ fontSize: 10, color: Q.acc, background: Q.accDim, border: `1px solid ${Q.border2}`, borderRadius: 20, padding: '2px 7px', fontWeight: 700 }}>v5</span>
             </div>
-            <p style={{ color: Q.subtle, fontSize: 11, margin: '2px 0 0' }}>On-chain payroll · batch create & pay · startDate enforcement · USDT & USDC</p>
+            <p style={{ color: Q.subtle, fontSize: 11, margin: '2px 0 0' }}>On-chain payroll · batch create & pay · tx hash stored on-chain · USDT & USDC</p>
           </div>
-          <a href="https://testnet.qmsscan.io/address/0xFCB2D1735D05A396aAf817b82AE1145050f18885"
+          <a href="https://testnet.qmsscan.io/address/0x20aD2D6764d45c5A79DDBaB70aF11C2d86FbA6dB"
             target="_blank" rel="noopener noreferrer"
             style={{ color: Q.acc, fontSize: 11, display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none', padding: '5px 10px', background: Q.accDim, border: `1px solid ${Q.border2}`, borderRadius: 7 }}>
             View <ExternalLink size={10} />
@@ -340,10 +340,10 @@ export function Overview({ onNavigate, onOpen }: { onNavigate: (p: string) => vo
         </div>
         <div style={{ padding: '10px 0 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
           {[
-            { label: 'Address',   val: <CopyChip value="0xFCB2D1735D05A396aAf817b82AE1145050f18885" display="0xFCB2…885" /> },
+            { label: 'Address',   val: <CopyChip value="0x20aD2D6764d45c5A79DDBaB70aF11C2d86FbA6dB" display="0x20aD…A6dB" /> },
             { label: 'Network',   val: <span style={{ color: Q.ink2, fontSize: 12, fontWeight: 600 }}>QMS Testnet (19480)</span> },
-            { label: 'Deployed',  val: <span style={{ color: Q.ink2, fontSize: 12, fontWeight: 600 }}>2026-10-29</span> },
-            { label: 'Features',  val: <span style={{ color: Q.ink2, fontSize: 12, fontWeight: 600 }}>batchCreatePayroll · batchPayEmployees · payEmployee · cancelPayroll · startDate lock</span> },
+            { label: 'Deployed',  val: <span style={{ color: Q.ink2, fontSize: 12, fontWeight: 600 }}>2026-11-03</span> },
+            { label: 'Features',  val: <span style={{ color: Q.ink2, fontSize: 12, fontWeight: 600 }}>batchCreatePayroll · batchPayEmployees · payEmployee · recordPaymentTx · cancelPayroll · startDate lock</span> },
           ].map(({ label, val }, i, arr) => (
             <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < arr.length - 1 ? `1px solid ${Q.border}` : 'none' }}>
               <span style={{ color: Q.subtle, fontSize: 12 }}>{label}</span>

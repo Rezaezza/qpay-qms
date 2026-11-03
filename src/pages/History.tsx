@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAccount } from 'wagmi'
-import { useEmployerPayrolls, usePayrollPaidLogs, type OnChainPayroll } from '../hooks/usePayrollContract'
+import { useEmployerPayrolls, type OnChainPayroll } from '../hooks/usePayrollContract'
 import { useSwapHistory, type OnChainSwap } from '../hooks/useSwapHistory'
 import { getExplorerTxUrl, truncateHash, timeAgo } from '../lib/utils'
 import { ExternalLink, Users, ArrowLeftRight, Wallet, Loader2 } from 'lucide-react'
@@ -64,9 +64,11 @@ function SwapRow({ s, last }: { s: OnChainSwap; last: boolean }) {
 }
 
 // ─── Payroll row (on-chain) ───────────────────────────────────────────────────
-function PayrollHistoryRow({ p, txHashFromLog, last }: {
-  p: OnChainPayroll; txHashFromLog: string | null; last: boolean
-}) {
+const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
+
+function PayrollHistoryRow({ p, last }: { p: OnChainPayroll; last: boolean }) {
+  // Payment tx hash is stored inside the contract (PayrollEntry.txRef)
+  const txHashFromLog = p.txRef && p.txRef !== ZERO_HASH ? p.txRef : null
   const tokenColor = p.tokenSymbol === 'USDT' ? '#26a17b' : '#2775ca'
   const amountNum  = parseFloat(formatUnits(p.amount, 6))
   const paidDate   = p.paidAt > 0n ? new Date(Number(p.paidAt) * 1000) : null
@@ -126,7 +128,6 @@ export function History() {
   // All data from on-chain — no localStorage
   const { data: swaps = [], isLoading: loadingSwaps } = useSwapHistory(address)
   const { paid: paidPayrolls, isLoading: loadingPayrolls } = useEmployerPayrolls()
-  const { data: paidLogsMap = {} } = usePayrollPaidLogs(address)
 
   const sortedPayrolls = [...paidPayrolls].sort((a, b) => Number(b.paidAt) - Number(a.paidAt))
 
@@ -233,7 +234,6 @@ export function History() {
               <PayrollHistoryRow
                 key={String(p.id)}
                 p={p}
-                txHashFromLog={paidLogsMap[String(p.id)] ?? null}
                 last={i === sortedPayrolls.length - 1}
               />
             )}

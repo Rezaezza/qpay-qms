@@ -175,7 +175,7 @@
         <circle cx="16" cy="16" r="4.5" fill="#0EA5E9"/>
         <line x1="22.3" y1="22.3" x2="26" y2="26" stroke="#0EA5E9" stroke-width="2.2" stroke-linecap="round"/>
       </svg>
-      <span class="sidebar-logo-text">Qpay <span class="sidebar-logo-badge">v1.2 Testnet</span></span>
+      <span class="sidebar-logo-text">Qpay <span class="sidebar-logo-badge">v1.4 Testnet</span></span>
     </div>
 
     <div class="sidebar-section">Overview</div>
@@ -269,7 +269,7 @@
                           │
               ┌───────────▼────────────┐
               │  QMS Testnet Contracts   │
-              │  • QpayPayroll v3        │
+              │  • QpayPayroll v5        │
               │  • QpaySwap              │
               │  • QWAP Router V2        │
               │  • USDT / USDC ERC-20    │
@@ -433,12 +433,12 @@
         <tbody>
           <tr>
             <td><span class="badge badge-usdt">USDT</span> Tether USD</td>
-            <td><code>0x72577544f4134a25E7f09d0B5FF0ca05A1249EbF</code></td>
+            <td><code>0x5D1386fC130143F92511bC2D18124D3E414ed429</code></td>
             <td>6</td>
           </tr>
           <tr>
             <td><span class="badge badge-usdc">USDC</span> USD Coin</td>
-            <td><code>0xDfF68E53a0A8275212927c12017f5aB5f1842a04</code></td>
+            <td><code>0xDd4D61DF875cc613E1372c78827a5F4C2741bf11</code></td>
             <td>6</td>
           </tr>
         </tbody>
@@ -555,18 +555,18 @@ amountOutMin = rawOut - (rawOut × slipBps / 10000)</code></pre>
       </div>
 
       <div class="contract-card">
-        <h4>QpayPayroll <span style="font-size:.75rem;color:#0EA5E9;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.25);border-radius:12px;padding:2px 8px;vertical-align:middle;">v3</span></h4>
-        <div class="addr">0xFCB2D1735D05A396aAf817b82AE1145050f18885</div>
+        <h4>QpayPayroll <span style="font-size:.75rem;color:#0EA5E9;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.25);border-radius:12px;padding:2px 8px;vertical-align:middle;">v5</span></h4>
+        <div class="addr">0x20aD2D6764d45c5A79DDBaB70aF11C2d86FbA6dB</div>
         <div class="meta">
           Network: QMS Testnet (Chain ID 19480) ·
           Deployer: 0x4389006Dd061d13129a894b9E03a04EaE9B377b9 ·
-          Deployed: 2026-10-29 ·
-          USDT: 0x72577544f4134a25E7f09d0B5FF0ca05A1249EbF ·
-          USDC: 0xDfF68E53a0A8275212927c12017f5aB5f1842a04 ·
-          <a href="https://testnet.qmsscan.io/address/0xFCB2D1735D05A396aAf817b82AE1145050f18885" target="_blank">View on Explorer ↗</a>
+          Deployed: 2026-11-03 ·
+          USDT: 0x5D1386fC130143F92511bC2D18124D3E414ed429 ·
+          USDC: 0xDd4D61DF875cc613E1372c78827a5F4C2741bf11 ·
+          <a href="https://testnet.qmsscan.io/address/0x20aD2D6764d45c5A79DDBaB70aF11C2d86FbA6dB" target="_blank">View on Explorer ↗</a>
         </div>
       </div>
-      <p>The <code>QpayPayroll</code> contract stores all payroll entries permanently on-chain, linked to the employer's wallet. Key functions: <code>createPayroll()</code>, <code>batchCreatePayroll()</code>, <code>payEmployee()</code> (enforces <code>startDate</code> via <code>block.timestamp</code>), <code>batchPayEmployees()</code>, <code>cancelPayroll()</code>, <code>getPayrollBatch()</code>. Uses <code>ReentrancyGuard</code> and custom errors for gas-efficient reverts.</p>
+      <p>The <code>QpayPayroll</code> contract stores all payroll entries permanently on-chain, linked to the employer's wallet. Key functions: <code>createPayroll()</code>, <code>batchCreatePayroll()</code>, <code>payEmployee()</code> (enforces <code>startDate</code> via <code>block.timestamp</code>), <code>batchPayEmployees()</code>, <code>recordPaymentTx()</code> (stores the payment tx hash in the contract), <code>cancelPayroll()</code>, <code>getPayrollBatch()</code>. Uses <code>ReentrancyGuard</code> and custom errors for gas-efficient reverts.</p>
 
       <div class="contract-card">
         <h4>QpaySwap</h4>
@@ -663,13 +663,13 @@ swapExactTokensForTokens(
           <tr>
             <td>Tether USD</td>
             <td><span class="badge badge-usdt">USDT</span></td>
-            <td><code>0x72577544f4134a25E7f09d0B5FF0ca05A1249EbF</code></td>
+            <td><code>0x5D1386fC130143F92511bC2D18124D3E414ed429</code></td>
             <td>6</td>
           </tr>
           <tr>
             <td>USD Coin</td>
             <td><span class="badge badge-usdc">USDC</span></td>
-            <td><code>0xDfF68E53a0A8275212927c12017f5aB5f1842a04</code></td>
+            <td><code>0xDd4D61DF875cc613E1372c78827a5F4C2741bf11</code></td>
             <td>6</td>
           </tr>
           <tr>
@@ -718,6 +718,19 @@ swapExactTokensForTokens(
 
     <section id="changelog">
       <h2>Changelog</h2>
+      <h3>v1.4.0 — 2026-11-03</h3>
+      <ul>
+        <li>QpayPayroll v5 deployed — the payment transaction hash is now stored inside the contract (<code>recordPaymentTx()</code>), so Payroll History shows tx hashes on any device without scanning logs</li>
+        <li>Pay and Pay All now ask for a second transaction that saves the receipt on-chain; if it is rejected, a Save receipt button lets you retry</li>
+        <li>Swap and Payroll pages refresh balances, allowances and history automatically after a confirmed transaction</li>
+        <li>Added paginated payroll reads and stricter validation (no payroll to the contract address, token addresses must be contracts)</li>
+      </ul>
+      <h3>v1.3.0 — 2026-11-03</h3>
+      <ul>
+        <li>Switched to the official QWAP USDC and USDT tokens, so swap rates now match testnet.qwap.xyz</li>
+        <li>QpayPayroll v4 deployed with the new USDT and USDC addresses</li>
+        <li>Swap history from earlier tokens still displays with the correct symbols</li>
+      </ul>
       <h3>v1.2.0 — 2026-10-29</h3>
       <ul>
         <li>QpayPayroll v3 deployed — added <code>batchCreatePayroll()</code> and <code>batchPayEmployees()</code> for creating and paying multiple employees in one transaction</li>
@@ -755,7 +768,7 @@ swapExactTokensForTokens(
 
     <hr />
     <p style="color: var(--subtle); font-size:.82rem; margin-top:8px;">
-      Qpay v1.2 · QMS Testnet · Built with React, wagmi &amp; viem ·
+      Qpay v1.4 · QMS Testnet · Built with React, wagmi &amp; viem ·
 
       <a href="https://testnet.qmsscan.io" target="_blank">Explorer</a>
     </p>

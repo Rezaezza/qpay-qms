@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
-import { Users, Plus, CheckCircle, XCircle, Clock, RefreshCw, ExternalLink, AlertCircle, Wallet, Zap } from 'lucide-react'
+import { Users, Plus, CheckCircle, XCircle, Clock, RefreshCw, ExternalLink, AlertCircle, Wallet, Zap, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Q, glassStyle, glass2Style } from '../theme'
 import { TokenIcon } from '../components/TokenIcon'
@@ -9,6 +9,7 @@ import {
   usePayEmployee,
   useCancelPayroll,
   useBatchPayEmployees,
+  useRecordPaymentTx,
   PAY_STATUS,
   type OnChainPayroll,
 } from '../hooks/usePayrollContract'
@@ -16,6 +17,7 @@ import { getStablecoin, QPAY_PAYROLL_ADDRESS, ERC20_APPROVE_ABI } from '../confi
 import { useReadContract } from 'wagmi'
 import { parseOnchainError } from '../lib/utils'
 import { maxUint256 } from 'viem'
+import { useRefreshOnchain } from '../hooks/useRefreshOnchain'
 
 
 const EXPLORER = 'https://testnet.qmsscan.io'
@@ -45,9 +47,12 @@ function PayRow({ entry, onRefresh, batchMode = false }: { entry: OnChainPayroll
 
   const { approveToken, payEmployee, isPending: isWritePending } = usePayEmployee()
   const { cancelPayroll } = useCancelPayroll()
+  const { recordPaymentTx } = useRecordPaymentTx()
+  const [recordHash, setRecordHash] = useState<`0x${string}`|undefined>()
+  const [receiptRejected, setReceiptRejected] = useState(false)
   const stablecoin = getStablecoin(entry.tokenSymbol)
 
-  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+  const { data: allowance } = useReadContract({
     address:      stablecoin.address,
     abi:          ERC20_APPROVE_ABI,
     functionName: 'allowance',
@@ -74,14 +79,42 @@ function PayRow({ entry, onRefresh, batchMode = false }: { entry: OnChainPayroll
     isError:   cancelError,
   } = useWaitForTransactionReceipt({ hash: cancelHash })
 
+  // Second transaction: saves the payment tx hash inside the contract
+  const {
+    isLoading: recordPending,
+    isSuccess: recordSuccess,
+    isError:   recordError,
+  } = useWaitForTransactionReceipt({ hash: recordHash })
+  const receiptPhase  = paySuccess && !recordSuccess
+  const receiptFailed = receiptRejected || recordError
+
+  async function saveReceipt() {
+    if (!payHash) return
+    const toastId = `pay-${String(entry.id)}`
+    setReceiptRejected(false)
+    setRecordHash(undefined)
+    toast.loading('Payment confirmed. Confirm the 2nd transaction to save the receipt on-chain…', { id: toastId })
+    try {
+      const h = await recordPaymentTx([entry.id], payHash)
+      setRecordHash(h)
+      toast.loading('Saving receipt to the blockchain…', { id: toastId })
+    } catch {
+      setReceiptRejected(true)
+      toast.error('Receipt not saved yet. Tap "Save receipt" to retry.', { id: toastId })
+    }
+  }
+
   // Side effects only — no setState here, just toast + refetch + onRefresh
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { if (approveSuccess) { void refetchAllowance(); toast.success('Approved! Click Pay to complete.', { id: `approve-${String(entry.id)}` }) } }, [approveSuccess])
+  useEffect(() => { if (approveSuccess) { onRefresh(); toast.success('Approved! Click Pay to complete.', { id: `approve-${String(entry.id)}` }) } }, [approveSuccess])
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (approveError)   { toast.error('Approval failed', { id: `approve-${String(entry.id)}` }) } }, [approveError])
+  // Pay confirmed -> immediately ask for the 2nd tx that stores the receipt in the contract
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (paySuccess && payHash) { void saveReceipt() } }, [paySuccess])
+  // Receipt stored -> show the final toast with the tx hash, then refresh the list
   useEffect(() => {
-    if (paySuccess && payHash) {
+    if (recordSuccess && payHash) {
       const explorerUrl = `https://testnet.qmsscan.io/tx/${payHash}`
       toast.success(
         <div>
@@ -98,7 +131,9 @@ function PayRow({ entry, onRefresh, batchMode = false }: { entry: OnChainPayroll
       onRefresh()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paySuccess])
+  }, [recordSuccess])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (recordError) { toast.error('Receipt not saved yet. Tap "Save receipt" to retry.', { id: `pay-${String(entry.id)}` }) } }, [recordError])
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (payError)       { toast.error('Payment failed', { id: `pay-${String(entry.id)}` }) } }, [payError])
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -107,7 +142,7 @@ function PayRow({ entry, onRefresh, batchMode = false }: { entry: OnChainPayroll
   useEffect(() => { if (cancelError)    { toast.error('Cancel failed', { id: `cancel-${String(entry.id)}` }) } }, [cancelError])
 
   const needsApproval = allowance !== undefined && allowance < entry.amount
-  const isBusy   = isWritePending || approvePending || payPending || cancelPending
+  const isBusy   = isWritePending || approvePending || payPending || cancelPending || recordPending
   const due      = getDueStatus(entry.startDate ?? 0n)
   const tokenColor  = entry.tokenSymbol === 'USDT' ? '#26a17b' : '#2775ca'
   const statusColor = ({ Pending: Q.warn, Paid: Q.success, Cancelled: Q.danger } as Record<string, string>)[entry.statusLabel] ?? Q.muted
@@ -183,7 +218,31 @@ function PayRow({ entry, onRefresh, batchMode = false }: { entry: OnChainPayroll
         </div>
       </div>
 
-      {entry.status === PAY_STATUS.Pending && (
+      {entry.status === PAY_STATUS.Pending && receiptPhase && (
+        <div style={{ borderTop: `1px solid ${Q.border}`, paddingTop: 12 }}>
+          {receiptFailed ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ color: Q.warn, fontSize: 12 }}>Payment confirmed. The receipt is not saved yet.</span>
+              <button onClick={() => { void saveReceipt() }}
+                style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                  background: Q.acc, color: '#fff', fontWeight: 700, fontSize: 13 }}>
+                Save receipt
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Loader2 size={15} color={Q.acc} style={{ animation: 'spin 1s linear infinite', flexShrink: 0 }} />
+              <span style={{ color: Q.ink2, fontSize: 12 }}>
+                {recordHash
+                  ? 'Saving receipt to the blockchain…'
+                  : 'Payment confirmed. Confirm the 2nd transaction in your wallet to save the receipt…'}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {entry.status === PAY_STATUS.Pending && !receiptPhase && (
         <div style={{ borderTop: `1px solid ${Q.border}`, paddingTop: 12 }}>
           {batchMode && due.isDue ? (
             // Batch mode: hide individual pay buttons, show "included in Pay All" chip
@@ -281,30 +340,37 @@ interface Props { onNavigate: (p: string) => void }
 export default function Payroll({ onNavigate }: Props) {
   const { isConnected } = useAccount()
   const [tab, setTab] = useState<'active'|'all'>('active')
-  const { payrolls, pending, paid, cancelled, isLoading, refetch } = useEmployerPayrolls()
-  const handleRefresh = useCallback(() => { void refetch() }, [refetch])
+  const { payrolls, pending, paid, cancelled, isLoading } = useEmployerPayrolls()
+  // Refreshes payroll list, allowances, balances and history in one go
+  const refreshOnchain = useRefreshOnchain()
+  const handleRefresh = useCallback(() => { void refreshOnchain() }, [refreshOnchain])
   const displayed = tab === 'active' ? pending : payrolls
 
   // Batch Pay All — multi-step: approve USDT → approve USDC → batchPayEmployees
   const { batchPayEmployees } = useBatchPayEmployees()
+  const { recordPaymentTx: recordBatchReceipt } = useRecordPaymentTx()
   const { writeContractAsync } = useWriteContract()
 
   // step: idle | approving-usdt | approving-usdc | paying | done
-  type BatchStep = 'idle' | 'approving-usdt' | 'approving-usdc' | 'paying' | 'done'
+  type BatchStep = 'idle' | 'approving-usdt' | 'approving-usdc' | 'paying' | 'recording' | 'receipt-failed' | 'done'
   const [batchStep, setBatchStep] = useState<BatchStep>('idle')
   const [batchApproveHash, setBatchApproveHash] = useState<`0x${string}`|undefined>()
   const [batchPayHash,     setBatchPayHash]     = useState<`0x${string}`|undefined>()
+  const [batchRecordHash,  setBatchRecordHash]  = useState<`0x${string}`|undefined>()
   const batchIdsRef = useRef<bigint[]>([])
 
   const { isSuccess: batchApproveOk, isError: batchApproveErr } =
     useWaitForTransactionReceipt({ hash: batchApproveHash })
   const { isSuccess: batchPayOk, isError: batchPayErr } =
     useWaitForTransactionReceipt({ hash: batchPayHash })
+  // 2nd transaction: saves the batch payment tx hash inside the contract
+  const { isSuccess: batchRecordOk, isError: batchRecordErr } =
+    useWaitForTransactionReceipt({ hash: batchRecordHash })
 
   // Due pending payrolls (start date passed)
   const duePending = pending.filter(p => Number(p.startDate) <= Math.floor(Date.now() / 1000))
 
-  const isBatchBusy = batchStep !== 'idle' && batchStep !== 'done'
+  const isBatchBusy = batchStep !== 'idle' && batchStep !== 'done' && batchStep !== 'receipt-failed'
 
   // State machine — advance on receipt confirmation
   useEffect(() => {
@@ -353,16 +419,59 @@ export default function Payroll({ onNavigate }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchApproveErr])
 
+  async function saveBatchReceipt() {
+    if (!batchPayHash) return
+    setBatchStep('recording')
+    setBatchRecordHash(undefined)
+    toast.loading('Payments confirmed. Confirm the 2nd transaction to save the receipt on-chain…', { id: 'batch-pay' })
+    try {
+      const h = await recordBatchReceipt(batchIdsRef.current, batchPayHash)
+      setBatchRecordHash(h)
+      toast.loading('Saving receipt to the blockchain…', { id: 'batch-pay' })
+    } catch {
+      setBatchStep('receipt-failed')
+      toast.error('Receipt not saved yet. Tap "Save receipt" to retry.', { id: 'batch-pay' })
+    }
+  }
+
+  // Batch payment confirmed -> refresh statuses, then ask for the receipt transaction
   useEffect(() => {
-    if (batchPayOk) {
-      toast.success(`All ${batchIdsRef.current.length} payments confirmed!`, { id: 'batch-pay' })
-      setBatchStep('done')
-      setBatchPayHash(undefined)
-      setBatchApproveHash(undefined)
-      void refetch()
+    if (batchPayOk && batchPayHash) {
+      handleRefresh()
+      void saveBatchReceipt()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchPayOk])
+
+  // Receipt stored -> final toast with the payment tx hash
+  useEffect(() => {
+    if (batchRecordOk && batchPayHash) {
+      toast.success(
+        <div>
+          <div style={{ fontWeight: 700, marginBottom: 4 }}>All {batchIdsRef.current.length} payments confirmed!</div>
+          <a href={`https://testnet.qmsscan.io/tx/${batchPayHash}`} target="_blank" rel="noopener noreferrer"
+            style={{ color: '#6c5ce7', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+            {batchPayHash.slice(0,10)}…{batchPayHash.slice(-8)} ↗
+          </a>
+        </div>,
+        { id: 'batch-pay', duration: 8000 }
+      )
+      setBatchStep('done')
+      setBatchPayHash(undefined)
+      setBatchRecordHash(undefined)
+      setBatchApproveHash(undefined)
+      handleRefresh()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchRecordOk])
+
+  useEffect(() => {
+    if (batchRecordErr) {
+      toast.error('Receipt not saved yet. Tap "Save receipt" to retry.', { id: 'batch-pay' })
+      setBatchStep('receipt-failed')
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchRecordErr])
 
   useEffect(() => {
     if (batchPayErr) {
@@ -505,6 +614,7 @@ export default function Payroll({ onNavigate }: Props) {
                 {batchStep === 'approving-usdt' ? 'Approving USDT…'
                  : batchStep === 'approving-usdc' ? 'Approving USDC…'
                  : batchStep === 'paying' ? 'Sending Payment…'
+                 : batchStep === 'recording' ? 'Saving receipt…'
                  : `Pay All (${duePending.length})`}
               </button>
             )}
@@ -515,6 +625,34 @@ export default function Payroll({ onNavigate }: Props) {
             </button>
           </div>
         </div>
+
+        {/* Receipt banner: shown after Pay All confirms, until the receipt is stored in the contract */}
+        {(batchStep === 'recording' || batchStep === 'receipt-failed') && (
+          <div style={{ ...glass2Style, borderRadius: 12, padding: '14px 18px', marginBottom: 16,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            {batchStep === 'receipt-failed' ? (
+              <>
+                <span style={{ color: Q.warn, fontSize: 13 }}>
+                  Payments confirmed. The receipt for {batchIdsRef.current.length} payment(s) is not saved yet.
+                </span>
+                <button onClick={() => { void saveBatchReceipt() }}
+                  style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                    background: Q.acc, color: '#fff', fontWeight: 700, fontSize: 13 }}>
+                  Save receipt
+                </button>
+              </>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Loader2 size={16} color={Q.acc} style={{ animation: 'spin 1s linear infinite', flexShrink: 0 }} />
+                <span style={{ color: Q.ink2, fontSize: 13 }}>
+                  {batchRecordHash
+                    ? 'Saving receipt to the blockchain…'
+                    : 'Payments confirmed. Confirm the 2nd transaction in your wallet to save the receipt…'}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Stats */}
         {payrolls.length > 0 && (

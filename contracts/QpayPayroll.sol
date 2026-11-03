@@ -46,10 +46,14 @@ contract QpayPayroll is ReentrancyGuard {
     error TokenTransferFailed();
     error InvalidToken();
     error ZeroTokenAddress();
+    error TokenNotContract();
     error BatchSizeMismatch();
     error BatchTooLarge();
     error EmptyBatch();
     error BatchPaymentFailed(uint256 payrollId);
+    error PaymentTxAlreadyRecorded(uint256 payrollId);
+    error PayrollNotPaid(uint256 payrollId, PayStatus status);
+    error InvalidTxHash();
 
     event PayrollCreated(
         uint256 indexed id,
@@ -71,6 +75,7 @@ contract QpayPayroll is ReentrancyGuard {
     );
 
     event PayrollCancelled(uint256 indexed id, address indexed employer);
+    event PaymentTxRecorded(uint256 indexed id, address indexed employer, bytes32 txHash);
 
     address public immutable USDT_TOKEN;
     address public immutable USDC_TOKEN;
@@ -82,6 +87,7 @@ contract QpayPayroll is ReentrancyGuard {
 
     constructor(address usdtAddress, address usdcAddress) {
         if (usdtAddress == address(0) || usdcAddress == address(0)) revert ZeroTokenAddress();
+        if (usdtAddress.code.length == 0 || usdcAddress.code.length == 0) revert TokenNotContract();
         USDT_TOKEN = usdtAddress;
         USDC_TOKEN = usdcAddress;
     }
@@ -152,6 +158,25 @@ contract QpayPayroll is ReentrancyGuard {
         return _employerPayrollIds[employer];
     }
 
+    function getEmployerPayrollCount(address employer) external view returns (uint256) {
+        return _employerPayrollIds[employer].length;
+    }
+
+    function getEmployerPayrollsPage(address employer, uint256 offset, uint256 limit) external view returns (uint256[] memory page) {
+        uint256[] storage ids = _employerPayrollIds[employer];
+        uint256 length = ids.length;
+        if (limit > 100) limit = 100;
+        if (offset >= length) return new uint256[](0);
+
+        uint256 size = length - offset;
+        if (size > limit) size = limit;
+        page = new uint256[](size);
+
+        for (uint256 i = 0; i < size; ++i) {
+            page[i] = ids[offset + i];
+        }
+    }
+
     function getPayroll(uint256 id) external view returns (PayrollEntry memory) {
         PayrollEntry storage payroll = _payrollById(id);
         return payroll;
@@ -166,6 +191,35 @@ contract QpayPayroll is ReentrancyGuard {
         }
     }
 
+    /// @notice Records an employer-self-attested payment transaction hash, write-once per payroll.
+    function recordPaymentTx(uint256[] calldata payrollIds, bytes32 txHash) external {
+        uint256 length = payrollIds.length;
+        if (length == 0) revert EmptyBatch();
+        if (length > 50) revert BatchTooLarge();
+        if (txHash == bytes32(0)) revert InvalidTxHash();
+
+        for (uint256 i = 0; i < length; ++i) {
+            uint256 id = payrollIds[i];
+            PayrollEntry storage payroll = _payrollById(id);
+
+            if (payroll.employer != msg.sender) revert NotPayrollEmployer(id, msg.sender);
+            if (payroll.status != PayStatus.Paid) revert PayrollNotPaid(id, payroll.status);
+            if (payroll.txRef != bytes32(0)) revert PaymentTxAlreadyRecorded(id);
+
+            payroll.txRef = txHash;
+            emit PaymentTxRecorded(id, msg.sender, txHash);
+        }
+    }
+
+    function getPaymentTxHashes(uint256[] calldata ids) external view returns (bytes32[] memory hashes) {
+        uint256 length = ids.length;
+        hashes = new bytes32[](length);
+
+        for (uint256 i = 0; i < length; ++i) {
+            hashes[i] = _payrollById(ids[i]).txRef;
+        }
+    }
+
     function _createSinglePayroll(
         string calldata employeeName,
         address employee,
@@ -174,7 +228,7 @@ contract QpayPayroll is ReentrancyGuard {
         PayFrequency frequency,
         uint256 startDate
     ) internal returns (uint256 id) {
-        if (employee == address(0)) revert InvalidEmployee();
+        if (employee == address(0) || employee == address(this)) revert InvalidEmployee();
         if (amount == 0) revert InvalidAmount();
 
         id = _nextPayrollId;

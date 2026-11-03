@@ -1,11 +1,10 @@
 /**
  * usePayrollContract — all on-chain reads and writes for QpayPayroll contract
- * Contract: 0x257F3e776082D7a221A46B561F70f48032e8781D on QMS Testnet
+ * Contract: see QPAY_PAYROLL_ADDRESS in config.ts (QMS Testnet)
  */
-import { useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt, usePublicClient } from 'wagmi'
-import { parseUnits, formatUnits, parseAbiItem } from 'viem'
+import { useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { parseUnits, formatUnits } from 'viem'
 import { useAccount } from 'wagmi'
-import { useQuery } from '@tanstack/react-query'
 import {
   QPAY_PAYROLL_ADDRESS,
   QPAY_PAYROLL_ABI,
@@ -207,59 +206,24 @@ export function useWaitForPayrollTx(hash: `0x${string}` | undefined) {
   return useWaitForTransactionReceipt({ hash })
 }
 
-// ─── Hook: fetch PayrollPaid event logs → payrollId → txHash map ─────────────
-// Reads from on-chain event logs so tx hashes persist across devices/browsers.
-const PAID_EVENT = parseAbiItem(
-  'event PayrollPaid(uint256 indexed payrollId, address indexed employer, address employee, uint256 amount, uint8 token, uint256 paidAt)'
-)
+// ─── Hook: save the payment tx hash inside the contract ──────────────────────
+// A contract cannot know its own tx hash, so after the pay tx confirms the
+// employer's wallet calls recordPaymentTx(ids, hash). Stored in PayrollEntry.txRef
+// (write-once), so history needs no log scanning and works on any device.
+export function useRecordPaymentTx() {
+  const { writeContractAsync, isPending } = useWriteContract()
 
-export function usePayrollPaidLogs(employerAddress: `0x${string}` | undefined) {
-  const client = usePublicClient()
+  async function recordPaymentTx(payrollIds: bigint[], payTxHash: `0x${string}`) {
+    const hash = await writeContractAsync({
+      address:      QPAY_PAYROLL_ADDRESS,
+      abi:          QPAY_PAYROLL_ABI,
+      functionName: 'recordPaymentTx',
+      args:         [payrollIds, payTxHash],
+    })
+    return hash
+  }
 
-  return useQuery({
-    queryKey: ['payrollPaidLogs', QPAY_PAYROLL_ADDRESS, employerAddress],
-    enabled: !!client && !!employerAddress,
-    // Cache 30s, re-fetch after pay actions via invalidateQueries
-    staleTime: 30_000,
-    queryFn: async (): Promise<Record<string, `0x${string}`>> => {
-      if (!client || !employerAddress) return {}
-
-      // QMS Testnet RPC limit: max 100k blocks per request.
-      // Scan in 90k-block chunks, up to 5 chunks (450k blocks total).
-      const CHUNK  = 90_000n
-      const latestBlock = await client.getBlockNumber()
-
-      const chunks: Array<{ from: bigint; to: bigint }> = []
-      let end = latestBlock
-      for (let i = 0; i < 5; i++) {
-        const start = end > CHUNK ? end - CHUNK + 1n : 0n
-        chunks.push({ from: start, to: end })
-        if (start === 0n) break
-        end = start - 1n
-      }
-
-      const allLogs = (await Promise.all(
-        chunks.map(({ from, to }) =>
-          client.getLogs({
-            address:   QPAY_PAYROLL_ADDRESS,
-            event:     PAID_EVENT,
-            args:      { employer: employerAddress },
-            fromBlock: from,
-            toBlock:   to,
-          }).catch(() => [])
-        )
-      )).flat()
-
-      // Build map: payrollId.toString() → txHash
-      const map: Record<string, `0x${string}`> = {}
-      for (const log of allLogs) {
-        if (log.args.payrollId !== undefined && log.transactionHash) {
-          map[log.args.payrollId.toString()] = log.transactionHash
-        }
-      }
-      return map
-    },
-  })
+  return { recordPaymentTx, isPending }
 }
 
 // ─── Hook: batch create payrolls ─────────────────────────────────────────────

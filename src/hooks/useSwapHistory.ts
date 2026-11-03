@@ -6,7 +6,7 @@
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { formatUnits } from 'viem'
 import { useState } from 'react'
-import { QPAY_SWAP_ADDRESS, QPAY_SWAP_ABI, STABLECOINS, WQMS_ADDRESS, QMS_CHAIN_ID } from '../config'
+import { QPAY_SWAP_ADDRESS, QPAY_SWAP_ABI, STABLECOINS, LEGACY_STABLECOIN_SYMBOLS, WQMS_ADDRESS, QMS_CHAIN_ID } from '../config'
 
 export interface OnChainSwap {
   txHash:      string
@@ -24,6 +24,8 @@ function addrToSymbol(addr: string): string {
   const stable = STABLECOINS.find(t => t.address.toLowerCase() === a)
   if (stable) return stable.symbol
   if (a === WQMS_ADDRESS.toLowerCase()) return 'QMS'
+  const legacy = LEGACY_STABLECOIN_SYMBOLS[a]
+  if (legacy) return legacy
   return addr.slice(0, 6)
 }
 
@@ -33,6 +35,7 @@ function addrToDecimals(addr: string): number {
   const stable = STABLECOINS.find(t => t.address.toLowerCase() === a)
   if (stable) return stable.decimals
   if (a === WQMS_ADDRESS.toLowerCase()) return 18
+  if (LEGACY_STABLECOIN_SYMBOLS[a]) return 6
   return 18
 }
 
